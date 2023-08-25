@@ -51,8 +51,8 @@ window.addEventListener('load', (le) => {
             }
         }
         else {
-            if (md.target.tagName == 'circle') {
-                svg.move = [...md.target.parentNode.children].indexOf(md.target);
+            if (md.target.tagName == 'circle' && md.target.parentNode.getAttribute('id') == 'layer'+curlayer()) {
+                svg.move = md.target;
             }
         }
     })
@@ -74,9 +74,13 @@ window.addEventListener('load', (le) => {
                 layer[curlayer()] = path;
                 svg.innerHTML = drawpath() + drawpoint();
             }
-            if (svg.move !== false && me.target.tagName == 'circle' && me.target.parentNode.getAttribute('id') == 'layer'+curlayer()) {
-                layer[curlayer()][svg.move] = {x: me.x, y:me.y};
-                svg.innerHTML = drawpath() + drawpoint();
+            if (svg.move !== false ) {
+                let index = [...svg.move.parentNode.children].indexOf(svg.move)
+                layer[curlayer()][index] = {x: me.x, y:me.y};
+                svg.move.setAttribute('cx', me.x);
+                svg.move.setAttribute('cy', me.y);
+                svg.querySelectorAll('path')[curlayer()].outerHTML = bezierPath(layer[curlayer()].map((p) => [p.x, p.y]));
+                // svg.innerHTML = drawpath() + drawpoint();
                 // console.log(me.target);
             }
         }
