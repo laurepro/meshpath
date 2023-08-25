@@ -6,6 +6,7 @@ html {
 
 * {
     font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+    font-size: 12px;
 }
 
 body>svg {
@@ -32,7 +33,7 @@ body>svg>g>circle {
 }
 
 body>svg>g.active>circle {
-    stroke: transparent;
+    stroke: red;
     stroke-width: 0.75px;
 }
 
@@ -48,14 +49,13 @@ body>div {
     display: flex;
     gap: 5px;
     position: absolute;
-    text-align: right;
     padding: 5px;
 }
 
-body>div>label,
+body>div div,
 body>div>button {
     border: none;
-    padding: 3px;
+    padding: 3px 5px;
     text-align: center;
     text-decoration: none;
     display: inline-block;
@@ -64,16 +64,8 @@ body>div>button {
     color: white;
 }
 
-body>div>label>input[type="checkbox"],
-body>div>label>input[type="radio"] {
+body>div>label>input {
     display: none;
-}
-
-body>div>label>input[name="trace"]~span::before {
-    content: 'Trace';
-}
-body>div>label>input[name="trace"]:checked~span:before {
-    content: 'Move';
 }
 
 body>div>label {
@@ -82,18 +74,11 @@ body>div>label {
     padding: 0;
 }
 
-body>div>label>span {
-    display: block;
-    margin: 3px;
-    width: 100%;
-    height: 100%;
-    background-color: cadetblue;
-}
 
-body>div>label>input[type="radio"]:checked~span {
+body>div>label>input[type="radio"]:checked~div {
     background-color: chocolate;
 }
 
-body>div>label>span:hover {
+body>div>label[layer]>div:hover {
     background-color: darksalmon;
 }

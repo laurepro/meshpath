@@ -71,5 +71,5 @@ const bezierPath = (points) => {
         // else
         : `${acc} ${bezierCommand(point, i, a)}`
         , '')
-    return `<path d="${d}" stroke="black" fill="none"/>`
+    return d
 }
