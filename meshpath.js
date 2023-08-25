@@ -23,9 +23,9 @@ window.addEventListener('load', (le) => {
     tools.querySelector('button.add').addEventListener('click', (ce) => {
         let newid = layer.length;
         layer[newid] = layer[layer.length - 1] || [];
+        savelayer();
         tools.addlayer(newid);
         svg.innerHTML = drawpathall() + drawpointall();
-        savelayer();
     });
     tools.addlayer = (id) => {
         let newlayer = document.createElement('label');
@@ -88,9 +88,9 @@ window.addEventListener('load', (le) => {
             if (layer[curlayer()].length == 0) {
                 svg.trace = true;
             } else if (md.target.tagName == 'circle') {
-                position = [...md.target.parentNode.children].indexOf(md.target);
-                if (position == 0 || position == layer[curlayer()].length - 1) {
-                    svg.trace = position == 0 ? -1 : 1;
+                let index = [...md.target.parentNode.children].indexOf(md.target);
+                if (index == 0 || index == layer[curlayer()].length - 1) {
+                    svg.trace = index == 0 ? -1 : 1;
                 }
             }
         }
@@ -101,6 +101,29 @@ window.addEventListener('load', (le) => {
                 }
                 if (md.shiftKey) {
                     tools.querySelector(`label[layer="${md.target.parentElement.getAttribute('layer')}"]>input`).click()
+                }
+                if (md.altKey) {
+                    let index = [...md.target.parentNode.children].indexOf(md.target);
+                    for (let i = 0; i < layer.length; i++) {
+                        let points = [
+                            layer[i][index]
+                        ];
+                        if (index > 0) {
+                            points.unshift({
+                                x: layer[i][index].x - ((layer[i][index].x - layer[i][index - 1].x) / 2),
+                                y: layer[i][index].y - ((layer[i][index].y - layer[i][index - 1].y) / 2),
+                            });
+                        }
+                        if (index < layer[i].length - 1) {
+                            points.push({
+                                x: layer[i][index].x + (Math.abs(layer[i][index].x - layer[i][index - 1].x) / 2),
+                                y: layer[i][index].y + (Math.abs(layer[i][index].y - layer[i][index - 1].y) / 2),
+                            });
+                        }
+                        layer[i] = layer[i].slice(0, index).concat(points, layer[i].slice(index + 1));
+                    }
+                    // savelayer()
+                    svg.innerHTML = drawpathall() + drawpointall();
                 }
             }
         }
