@@ -22,7 +22,7 @@ window.addEventListener('load', (le) => {
     });
     tools.querySelector('button.add').addEventListener('click', (ce) => {
         let newid = layer.length;
-        layer[newid] = layer[layer.length - 1] || [];
+        layer[newid] = [...layer[layer.length - 1]] || [];
         savelayer();
         tools.addlayer(newid);
         svg.innerHTML = drawpathall() + drawpointall();
@@ -96,13 +96,10 @@ window.addEventListener('load', (le) => {
         }
         else {
             if (md.target.tagName == 'circle') {
-                if (md.target.parentNode.getAttribute('layer') == curlayer()) {
-                    svg.move = md.target;
-                }
                 if (md.shiftKey) {
                     tools.querySelector(`label[layer="${md.target.parentElement.getAttribute('layer')}"]>input`).click()
                 }
-                if (md.altKey) {
+                else if (md.altKey) {
                     let index = [...md.target.parentNode.children].indexOf(md.target);
                     for (let i = 0; i < layer.length; i++) {
                         let points = [
@@ -116,14 +113,17 @@ window.addEventListener('load', (le) => {
                         }
                         if (index < layer[i].length - 1) {
                             points.push({
-                                x: layer[i][index].x + (Math.abs(layer[i][index].x - layer[i][index - 1].x) / 2),
-                                y: layer[i][index].y + (Math.abs(layer[i][index].y - layer[i][index - 1].y) / 2),
+                                x: layer[i][index].x + (Math.abs(layer[i][index].x - layer[i][index + 1].x) / 2),
+                                y: layer[i][index].y + (Math.abs(layer[i][index].y - layer[i][index + 1].y) / 2),
                             });
                         }
                         layer[i] = layer[i].slice(0, index).concat(points, layer[i].slice(index + 1));
                     }
-                    // savelayer()
+                    savelayer()
                     svg.innerHTML = drawpathall() + drawpointall();
+                }
+                else if (md.target.parentNode.getAttribute('layer') == curlayer()) {
+                    svg.move = md.target;
                 }
             }
         }
@@ -162,15 +162,13 @@ window.addEventListener('load', (le) => {
                 svg.querySelector(`path[layer="${curlayer()}"]`).outerHTML = drawpath(layer[curlayer()], curlayer());
                 svg.querySelector(`g[layer="${curlayer()}"]`).outerHTML = drawpoint(layer[curlayer()], curlayer());
                 savelayer();
-            } else {
-                if (svg.move !== false) {
-                    let index = [...svg.move.parentNode.children].indexOf(svg.move)
-                    layer[curlayer()][index] = { x: me.x, y: me.y };
-                    svg.move.setAttribute('cx', me.x);
-                    svg.move.setAttribute('cy', me.y);
-                    svg.querySelector(`path[layer="${curlayer()}"]`).outerHTML = drawpath(layer[curlayer()], curlayer());
-                    savelayer();
-                }
+            } else  if (svg.move !== false) {
+                let index = [...svg.move.parentNode.children].indexOf(svg.move)
+                layer[curlayer()][index] = { x: me.x, y: me.y };
+                svg.move.setAttribute('cx', me.x);
+                svg.move.setAttribute('cy', me.y);
+                svg.querySelector(`path[layer="${curlayer()}"]`).outerHTML = drawpath(layer[curlayer()], curlayer());
+                savelayer();
             }
         }
     });
