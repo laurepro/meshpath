@@ -82,7 +82,7 @@ window.addEventListener("load", (le) => {
   });
   tools.querySelector("button.clear").addEventListener("click", (ce) => {
     if (confirm("sure ?")) {
-      layer = [[]];
+      layer = [[[]]];
       background = {};
       layers.querySelector('path[layer="0"]').setAttribute("d", "");
       hooks.querySelector('g[layer="0"]').innerHTML = "";
@@ -170,17 +170,20 @@ ${image.outerHTML}
 
   svg.trace = false;
   svg.move = false;
+  svg.join = false;
 
-  document.addEventListener("mousedown", (md) => animate.stop());
+  document.addEventListener("mousedown", () => animate.stop());
   svg.addEventListener("mousedown", (md) => {
     if (md.ctrlKey) {
-      if (layer[curlayer()].length == 0) {
-        svg.trace = true;
-      } else if (md.target.tagName == "circle") {
+      if (md.target.tagName == "circle") {
         let index = [...md.target.parentNode.children].indexOf(md.target);
         if (index == 0 || index == layer[curlayer()].length - 1) {
           svg.trace = index == 0 ? -1 : 1;
+          svg.join = md.target;
         }
+      }
+      else {
+        svg.trace = true;
       }
     } else {
       if (md.target.tagName == "circle") {
