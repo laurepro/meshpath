@@ -13,11 +13,16 @@
             <button class="save">Save</button>
             <button class="add">+</button>
             <button class="clear">Clear</button>
+            <label class="mesh"><input type="checkbox" name="mesh"><div>Mesh</div></button></label>
+            <button class="animate">Animate</button>
+            <input type="range" name="speed" min="1" max="30" step="1" value="5">
         </div>
         <svg xmlns="http://www.w3.org/2000/svg">
             <image id="background" preserveAspectRatio="none" />
             <g id="layers"></g>
             <g id="hooks"></g>
+            <g id="meshes"></g>
+            <g id="animate"></g>
         </svg>
     </body>
 </html>

@@ -25,9 +25,9 @@ window.addEventListener("load", (le) => {
               var img = inputfile.querySelector("image#background");
               if (img) {
                 background = {
-                  height: img.getAttribute('height'),
-                  width: img.getAttribute('width'),
-                  image: img.getAttribute('href'),
+                  height: img.getAttribute("height"),
+                  width: img.getAttribute("width"),
+                  image: img.getAttribute("href"),
                 };
                 savebackground();
                 image.initialize();
@@ -68,11 +68,16 @@ window.addEventListener("load", (le) => {
     tools.insertBefore(newlayer, tools.querySelector("button.add"));
   };
   tools.addEventListener("click", (ce) => {
-    if (ce.target.tagName == "INPUT" && ce.target.name == "layer") {
-      hooks.querySelector("g.active").classList.remove("active");
-      let active = hooks.querySelector(`g[layer="${ce.target.parentElement.getAttribute("layer")}"]`);
-      active.classList.add("active");
-      hooks.appendChild(active);
+    if (ce.target.tagName == "INPUT") {
+      if (ce.target.name == "layer") {
+        hooks.querySelector("g.active").classList.remove("active");
+        let active = hooks.querySelector(`g[layer="${ce.target.parentElement.getAttribute("layer")}"]`);
+        active.classList.add("active");
+        hooks.appendChild(active);
+      }
+      else if (ce.target.name == "mesh") {
+        meshes.style.display = ce.target.checked ? 'initial' : '';
+      }
     }
   });
   tools.querySelector("button.clear").addEventListener("click", (ce) => {
@@ -118,11 +123,29 @@ ${image.outerHTML}
     a.click();
   });
 
+  tools.querySelector("button.animate").addEventListener("click", (ce) => {
+    animate.start();
+  });
+
   const curlayer = () => tools.querySelector('input[name="layer"]:checked').parentElement.getAttribute("layer");
   const drawpathall = () => layer.map((l, k) => drawpath(l, k)).join("");
   const drawpath = (l, k) => `<path layer="${k}" d="${bezierPath(l.map((p) => [p.x, p.y]))}" stroke="black" fill="none"/>`;
   const drawpointall = () => layer.map((l, k) => drawpoint(l, k)).join("");
   const drawpoint = (l, k) => `<g layer="${k}" class="${k == curlayer() ? "active" : ""}">${l.map((p) => `<circle cx="${p.x}" cy="${p.y}" r="3"/>`).join("")}$</g>`;
+  const drawmeshall = () => {
+    let mesh = [];
+    for (var i = 0; i < layer[0].length; i++) {
+      mesh.push(drawmesh(i));
+    }
+    return mesh.join("");
+  };
+  const drawmesh = (i) => {
+    let path = [];
+    for (var m = 0; m < layer.length; m++) {
+      path.push(layer[m][i]);
+    }
+    return `<path mesh="${i}" d="${path.map((p, k) => `${k==0 ? 'M' : 'L'} ${p.x},${p.y}`)}" stroke="red" fill="none"/>`;
+  };
   const savelayer = () => localStorage.setItem("layer", JSON.stringify(layer));
   const savebackground = () => localStorage.setItem("background", JSON.stringify(background));
   const loadlayer = () => JSON.parse(localStorage.getItem("layer") || "[[]]");
@@ -130,6 +153,7 @@ ${image.outerHTML}
   const drawsvg = () => {
     layers.innerHTML = drawpathall();
     hooks.innerHTML = drawpointall();
+    meshes.innerHTML = drawmeshall();
   };
 
   var layer = loadlayer();
@@ -137,11 +161,17 @@ ${image.outerHTML}
   const svg = document.querySelector("body>svg");
   const layers = document.querySelector("body>svg>g#layers");
   const hooks = document.querySelector("body>svg>g#hooks");
+  const meshes = document.querySelector("body>svg>g#meshes");
   const image = document.querySelector("body>svg>image#background");
+  const animate = document.querySelector("body>svg>g#animate");
+
+  animate.start = () => animate.innerHTML = `<path stroke="blue" stroke-width="3" fill="none"><animate dur="${tools.querySelector('input[name="speed"]').value}s" repeatCount="indefinite" attributeName="d" values="${Array.from(layers.querySelectorAll('path')).map((p)=>p.getAttribute('d')).join('; ')}" /></path>`;
+  animate.stop = () => animate.innerHTML = "";
 
   svg.trace = false;
   svg.move = false;
 
+  document.addEventListener("mousedown", (md) => animate.stop());
   svg.addEventListener("mousedown", (md) => {
     if (md.ctrlKey) {
       if (layer[curlayer()].length == 0) {
@@ -168,8 +198,8 @@ ${image.outerHTML}
             }
             if (index < layer[i].length - 1) {
               points.push({
-                x: layer[i][index].x + Math.abs(layer[i][index].x - layer[i][index + 1].x) / 2,
-                y: layer[i][index].y + Math.abs(layer[i][index].y - layer[i][index + 1].y) / 2,
+                x: layer[i][index].x + (layer[i][index + 1].x - layer[i][index].x) / 2,
+                y: layer[i][index].y + (layer[i][index + 1].y - layer[i][index].y) / 2,
               });
             }
             layer[i] = layer[i].slice(0, index).concat(points, layer[i].slice(index + 1));
@@ -213,15 +243,16 @@ ${image.outerHTML}
         }
         path = simplify(path);
         layer[curlayer()] = path;
-        svg.querySelector(`path[layer="${curlayer()}"]`).outerHTML = drawpath(layer[curlayer()], curlayer());
-        svg.querySelector(`g[layer="${curlayer()}"]`).outerHTML = drawpoint(layer[curlayer()], curlayer());
+        layers.querySelector(`path[layer="${curlayer()}"]`).outerHTML = drawpath(layer[curlayer()], curlayer());
+        hooks.querySelector(`g[layer="${curlayer()}"]`).outerHTML = drawpoint(layer[curlayer()], curlayer());
         savelayer();
       } else if (svg.move !== false) {
         let index = [...svg.move.parentNode.children].indexOf(svg.move);
         layer[curlayer()][index] = { x: me.x, y: me.y };
         svg.move.setAttribute("cx", me.x);
         svg.move.setAttribute("cy", me.y);
-        svg.querySelector(`path[layer="${curlayer()}"]`).outerHTML = drawpath(layer[curlayer()], curlayer());
+        layers.querySelector(`path[layer="${curlayer()}"]`).outerHTML = drawpath(layer[curlayer()], curlayer());
+        meshes.querySelector(`path[mesh="${index}"]`).outerHTML = drawmesh(index);
         savelayer();
       }
     }
