@@ -9,35 +9,30 @@ html {
     font-size: 12px;
 }
 
-body>svg {
-    width: 100%;
-    height: 100%
-}
-
-body>svg>path {
+body>svg>g#layers>path {
     fill: none;
     stroke: black;
     stroke-width: 0.75px;
 }
 
-body>svg>g>circle {
+body>svg>g#hooks>g>circle {
     fill: none;
     stroke: black;
     stroke-width: 1px;
 }
 
-body>svg>g>circle {
+body>svg>g#hooks>g>circle {
     fill: lawngreen;
     stroke: transparent;
     stroke-width: 2px;
 }
 
-body>svg>g.active>circle {
+body>svg>g#hooks>g.active>circle {
     stroke: red;
     stroke-width: 0.75px;
 }
 
-body>svg>g.active>circle:hover {
+body>svg>g#hooks>g.active>circle:hover {
     fill: red;
 }
 
@@ -48,7 +43,7 @@ body>div.hidden {
 body>div {
     display: flex;
     gap: 5px;
-    position: absolute;
+    position: fixed;
     padding: 5px;
 }
 
