@@ -11,16 +11,22 @@
         <div>
             <label class="open"><input type="file" /><div>Open</div></label>
             <button class="save">Save</button>
-            <button class="undo" title="undo">&#x293A;</button>
-            <button class="redo" title="redo">&#x293B;</button>
+            <button class="undo" title="undo">&cularr;</button>
+            <button class="redo" title="redo">&curarr;</button>
             <label><div class="label">Layers</div></label>
-            <button class="add layer">+</button>
+            <button class="add layer" title="Add a layer">+</button>
             <label><div class="label">Groups</div></label>
-            <button class="add group">+</button>
+            <button class="add group" title="Add a group">+</button>
+            <button class="close" title="Close current group">&#10561;</button>
             <button class="clear">Clear</button>
             <label class="mesh"><input type="checkbox" name="mesh"><div>Mesh</div></button></label>
             <button class="animate">Animate</button>
             <input type="range" name="speed" min="1" max="30" step="1" value="5">
+            <label class="bind">
+                <div class="L T" title="Add top left point">&nwArr;</div><div class="C T" title="Add top center point">&uArr;</div><div class="R T" title="Add top right point">&neArr;</div>
+                <div class="L M" title="Add middle left point">&lArr;</div><div></div><div class="R M" title="Add middle right point">&rArr;</div>
+                <div class="L B" title="Add bottom left point">&swArr;</div><div class="C B" title="Add bottom center point">&dArr;</div><div class="R B" title="Add bottom right point">&seArr;</div>
+            </label>
         </div>
         <svg xmlns="http://www.w3.org/2000/svg">
             <defs>

@@ -1,22 +1,28 @@
 class History {
   constructor() {
-    this.list = [];
-    this.index = 0;
+    let storage = JSON.parse(localStorage.getItem('history') || '{"list":[[[[]]]],"index":0}');
+    this.list = storage.list;
+    this.index = storage.index;
   }
   add() {
     this.index++;
     let portion = this.list.slice(0, this.index + 1);
     let ajout = [];
-    Array.from(arguments).forEach((a) => ajout.push(JSON.stringify(a)));
+    Array.from(arguments).forEach((a) => ajout.push(JSON.parse(JSON.stringify(a))));
     portion.push(ajout);
     this.list = portion;
+    this.store();
   }
   go(sens) {
     this.index += sens;
     this.index = Math.min(Math.max(this.index, 1), this.list.length);
     let extract = [];
-    this.list[this.index - 1].forEach((i) => extract.push(JSON.parse(i)));
+    this.list[this.index - 1].forEach((i) => extract.push(JSON.parse(JSON.stringify(i))));
+    this.store();
     return extract;
+  }
+  store() {
+    localStorage.setItem('history',JSON.stringify({list: this.list,index:this.index}));
   }
 }
 
@@ -110,11 +116,11 @@ window.addEventListener("load", (le) => {
   tools.addEventListener("click", (ce) => {
     if (ce.target.tagName == "INPUT") {
       if (ce.target.name == "group") {
-        var g = ce.target.parentElement.getAttribute('group');
-        hooks.querySelectorAll('g[group]').forEach((g) => g.classList.remove('active'));
-        hooks.querySelectorAll(`g[group="${g}"]`).forEach((g) => g.classList.add('active'));
-        meshes.querySelectorAll('path.active').forEach((g) => g.classList.remove('active'));
-        meshes.querySelectorAll(`path[group="${g}"]`).forEach((g) => g.classList.add('active'));
+        var g = ce.target.parentElement.getAttribute("group");
+        hooks.querySelectorAll("g[group]").forEach((g) => g.classList.remove("active"));
+        hooks.querySelectorAll(`g[group="${g}"]`).forEach((g) => g.classList.add("active"));
+        meshes.querySelectorAll("path.active").forEach((g) => g.classList.remove("active"));
+        meshes.querySelectorAll(`path[group="${g}"]`).forEach((g) => g.classList.add("active"));
       } else if (ce.target.name == "layer") {
         let l = ce.target.parentElement.getAttribute("layer");
         layers.querySelector("path.active").classList.remove("active");
@@ -132,9 +138,18 @@ window.addEventListener("load", (le) => {
     if (confirm("sure ?")) {
       localStorage.removeItem("layer");
       localStorage.removeItem("background");
+      localStorage.removeItem("history");
       location.reload();
     }
   });
+  document.addEventListener('keydown',(kp)=>{
+    if (kp.key == 'z' && kp.ctrlKey) {
+      tools.querySelector("button.undo").click();
+    }
+    if (kp.key == 'y' && kp.ctrlKey) {
+      tools.querySelector("button.redo").click();
+    }
+  })
   tools.querySelector("button.undo").addEventListener("click", (ce) => {
     ret = history.go(-1);
     layer = ret[0];
@@ -181,6 +196,19 @@ ${image.outerHTML}
 
   tools.querySelector("button.animate").addEventListener("click", (ce) => {
     animate.start();
+  });
+
+  tools.querySelector("label.bind").addEventListener("click", (ce) => {
+    let type = Array.from(ce.target.classList),
+      width = background.width || svg.getBoundingClientRect().width,
+      height = background.height || svg.getBoundingClientRect().height;
+    let point = {
+      x: type[0] == "L" ? 0 : type[0] == "R" ? width : width/2,
+      y: type[1] == "T" ? 0 : type[1] == "B" ? height : height/2,
+    };
+    layer[0][0].push(point);
+    drawsvg();
+    console.log(point);
   });
 
   const curlayer = () => tools.querySelector('input[name="layer"]:checked').parentElement.getAttribute("layer");
@@ -379,6 +407,5 @@ ${image.outerHTML}
     image.initialize();
     drawsvg();
   };
-  historize();
   svg.initialize();
 });
