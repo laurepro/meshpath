@@ -109,11 +109,18 @@ window.addEventListener("load", (le) => {
   };
   tools.addEventListener("click", (ce) => {
     if (ce.target.tagName == "INPUT") {
-      if (ce.target.name == "layer") {
+      if (ce.target.name == "group") {
+        var g = ce.target.parentElement.getAttribute('group');
+        hooks.querySelectorAll('g[group]').forEach((g) => g.classList.remove('active'));
+        hooks.querySelectorAll(`g[group="${g}"]`).forEach((g) => g.classList.add('active'));
+        meshes.querySelectorAll('path.active').forEach((g) => g.classList.remove('active'));
+        meshes.querySelectorAll(`path[group="${g}"]`).forEach((g) => g.classList.add('active'));
+      } else if (ce.target.name == "layer") {
+        let l = ce.target.parentElement.getAttribute("layer");
         layers.querySelector("path.active").classList.remove("active");
-        hooks.querySelector("g.active").classList.remove("active");
-        layers.querySelector(`path[layer="${ce.target.parentElement.getAttribute("layer")}"]`).classList.add('active');
-        let active = hooks.querySelector(`g[layer="${ce.target.parentElement.getAttribute("layer")}"]`);
+        layers.querySelector(`path[layer="${l}"]`).classList.add("active");
+        hooks.querySelector("g[layer].active").classList.remove("active");
+        let active = hooks.querySelector(`g[layer="${l}"]`);
         active.classList.add("active");
         hooks.appendChild(active);
       } else if (ce.target.name == "mesh") {
@@ -184,7 +191,7 @@ ${image.outerHTML}
   const drawpointall = () => layer.map((l, k) => drawpoint(l, k)).join("");
   const drawpoint = (l, k) => `
   <g layer="${k}" class="${k == curlayer() ? "active" : ""}">
-  ${l.map((g, k) => `<g group="${k}">${g.map((p) => `<circle cx="${p.x}" cy="${p.y}" r="3"/>`).join("")}</g>`).join("")}
+  ${l.map((g, k) => `<g group="${k}" class="${k == curgroup() ? "active" : ""}" >${g.map((p) => `<circle cx="${p.x}" cy="${p.y}" r="3"/>`).join("")}</g>`).join("")}
   </g>`;
   const drawmeshall = () => {
     let mesh = [];
@@ -200,7 +207,7 @@ ${image.outerHTML}
     for (var l = 0; l < layer.length; l++) {
       path.push(layer[l][g][i]);
     }
-    return `<path group="${g}" point="${i}" d="${path.map((p, k) => `${k == 0 ? "M" : "L"} ${p.x},${p.y}`)}" marker-end="url(#arrowhead)" stroke="red" fill="none"/>`;
+    return `<path group="${g}" point="${i}" class="${g == curgroup() ? "active" : ""}" d="${path.map((p, k) => `${k == 0 ? "M" : "L"} ${p.x},${p.y}`)}" marker-end="url(#arrowhead)" fill="none"/>`;
   };
   const savelayer = () => localStorage.setItem("layer", JSON.stringify(layer));
   const savebackground = () => localStorage.setItem("background", JSON.stringify(background));
@@ -237,6 +244,7 @@ ${image.outerHTML}
   svg.addEventListener("dblclick", (dc) => {
     if (dc.target.tagName == "circle") {
       tools.querySelector(`label[layer="${dc.target.parentNode.parentNode.getAttribute("layer")}"]>input`).click();
+      tools.querySelector(`label[group="${dc.target.parentNode.getAttribute("group")}"]>input`).click();
     }
   });
 

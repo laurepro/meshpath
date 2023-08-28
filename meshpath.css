@@ -13,6 +13,14 @@ body>svg>g#meshes {
     display: none;
 }
 
+body>svg>g#meshes>path  {
+    stroke:yellowgreen;
+}
+
+body>svg>g#meshes>path.active  {
+    stroke:blueviolet;
+}
+
 body>svg>g#layers>path {
     fill: none;
     stroke: black;
@@ -36,9 +44,14 @@ body>svg>g#hooks>g circle {
     stroke-width: 2px;
 }
 
+
 body>svg>g#hooks>g.active circle {
     stroke: red;
-    stroke-width: 0.75px;
+    stroke-width: 2px;
+}
+
+body>svg>g#hooks>g>g.active circle {
+    fill:blue;
 }
 
 body>svg>g#hooks>g.active circle:hover {
