@@ -10,7 +10,7 @@ html {
 }
 
 body>svg>g#meshes {
-    display:none;
+    display: none;
 }
 
 body>svg>g#layers>path {
@@ -19,24 +19,29 @@ body>svg>g#layers>path {
     stroke-width: 0.75px;
 }
 
-body>svg>g#hooks>g>circle {
+body>svg>g#layers>path.active {
+    stroke: orangered;
+    stroke-width: 2px;
+}
+
+body>svg>g#hooks>g circle {
     fill: none;
     stroke: black;
     stroke-width: 1px;
 }
 
-body>svg>g#hooks>g>circle {
+body>svg>g#hooks>g circle {
     fill: lawngreen;
     stroke: transparent;
     stroke-width: 2px;
 }
 
-body>svg>g#hooks>g.active>circle {
+body>svg>g#hooks>g.active circle {
     stroke: red;
     stroke-width: 0.75px;
 }
 
-body>svg>g#hooks>g.active>circle:hover {
+body>svg>g#hooks>g.active circle:hover {
     fill: red;
 }
 
@@ -73,6 +78,9 @@ body>div>label {
     padding: 0;
 }
 
+body>div>label>div.label {
+    background-color: darkkhaki;
+}
 
 body>div>label>input[type="checkbox"]:checked~div,
 body>div>label>input[type="radio"]:checked~div {
