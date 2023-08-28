@@ -17,16 +17,11 @@
             <button class="add layer" title="Add a layer">+</button>
             <label><div class="label">Groups</div></label>
             <button class="add group" title="Add a group">+</button>
-            <button class="close" title="Close current group">&#10561;</button>
+            <label class="close" title="Close all groups"><input type="checkbox" name="close"><div>&#10561;</div></button></label>
             <button class="clear">Clear</button>
             <label class="mesh"><input type="checkbox" name="mesh"><div>Mesh</div></button></label>
             <button class="animate">Animate</button>
             <input type="range" name="speed" min="1" max="30" step="1" value="5">
-            <label class="bind">
-                <div class="L T" title="Add top left point">&nwArr;</div><div class="C T" title="Add top center point">&uArr;</div><div class="R T" title="Add top right point">&neArr;</div>
-                <div class="L M" title="Add middle left point">&lArr;</div><div></div><div class="R M" title="Add middle right point">&rArr;</div>
-                <div class="L B" title="Add bottom left point">&swArr;</div><div class="C B" title="Add bottom center point">&dArr;</div><div class="R B" title="Add bottom right point">&seArr;</div>
-            </label>
         </div>
         <svg xmlns="http://www.w3.org/2000/svg">
             <defs>

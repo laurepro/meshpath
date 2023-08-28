@@ -198,19 +198,6 @@ ${image.outerHTML}
     animate.start();
   });
 
-  tools.querySelector("label.bind").addEventListener("click", (ce) => {
-    let type = Array.from(ce.target.classList),
-      width = background.width || svg.getBoundingClientRect().width,
-      height = background.height || svg.getBoundingClientRect().height;
-    let point = {
-      x: type[0] == "L" ? 0 : type[0] == "R" ? width : width/2,
-      y: type[1] == "T" ? 0 : type[1] == "B" ? height : height/2,
-    };
-    layer[0][0].push(point);
-    drawsvg();
-    console.log(point);
-  });
-
   const curlayer = () => tools.querySelector('input[name="layer"]:checked').parentElement.getAttribute("layer");
   const curgroup = () => tools.querySelector('input[name="group"]:checked').parentElement.getAttribute("group");
   const drawpathall = () => layer.map((l, k) => drawpath(l, k)).join("");
@@ -360,11 +347,12 @@ ${image.outerHTML}
     if (me.buttons == 1) {
       if (me.shiftKey && svg.trace !== false) {
         var group = svg.group || curgroup();
-        path = layer[curlayer()][group];
+        let path = layer[curlayer()][group];
+        let point = { x: Math.max(0, me.x), y: Math.max(0, me.y) };
         if (svg.trace == 1) {
-          path.push({ x: me.x, y: me.y });
+          path.push(point);
         } else {
-          path.unshift({ x: me.x, y: me.y });
+          path.unshift(point);
         }
         path = simplify(path);
         layer[curlayer()][group] = path;
@@ -375,9 +363,10 @@ ${image.outerHTML}
         let group = svg.move.parentNode;
         let g = group.getAttribute("group");
         let i = [...group.children].indexOf(svg.move);
-        layer[curlayer()][g][i] = { x: me.x, y: me.y };
-        svg.move.setAttribute("cx", me.x);
-        svg.move.setAttribute("cy", me.y);
+        let point = { x: Math.max(0, me.x), y: Math.max(0, me.y) };
+        layer[curlayer()][g][i] = point;
+        svg.move.setAttribute("cx", point.x);
+        svg.move.setAttribute("cy", point.y);
         layers.querySelector(`path[layer="${curlayer()}"]`).outerHTML = drawpath(layer[curlayer()], curlayer());
         meshes.querySelector(`path[group="${g}"][point="${i}"]`).outerHTML = drawmesh(g, i);
         savelayer();
