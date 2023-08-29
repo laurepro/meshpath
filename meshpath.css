@@ -6,7 +6,7 @@ html {
 
 * {
     font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
-    font-size: 1.2rem !important;
+    font-size: 1rem !important;
 }
 
 body>svg>g#meshes {
@@ -71,21 +71,18 @@ body>div {
     opacity: 0.8
 }
 
-body>div div,
-body>div>button {
+body>div>label>div {
     border: none;
-    padding: 3px 8px;
     text-align: center;
     text-decoration: none;
     display: inline-block;
     font-size: 12px;
     background-color: cadetblue;
     color: white;
-}
-
-body>div>label>div {
-    height: 1.9rem;
-    padding-top:0.5rem;
+    height: 1.5rem;
+    padding:0.5rem;
+    cursor: pointer;
+    user-select: none;
 }
 
 body>div>label>input {
@@ -98,8 +95,10 @@ body>div>label {
     padding: 0;
 }
 
+body>div>label>div.label:hover,
 body>div>label>div.label {
     background-color: darkkhaki;
+    cursor:auto;
 }
 
 body>div>label>input[type="checkbox"]:checked~div,

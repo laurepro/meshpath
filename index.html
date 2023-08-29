@@ -1,8 +1,10 @@
 <html>
     <head>
         <meta charset="UTF-8">
-        <link rel="icon" type="image/png" href="/{{ ihm.application }}/images/logo.png" />
+        <link rel="icon" type="image/svg+xml" href="icon.svg" />
         <link rel="stylesheet" type="text/css" href="meshpath.css">
+        <script type="text/javascript"  src="history.js"></script>
+        <script type="text/javascript"  src="project.js"></script>
         <script type="text/javascript"  src="meshpath.js"></script>
         <script type="text/javascript"  src="simplify.js"></script>
         <script type="text/javascript"  src="bezier.js"></script>
@@ -10,17 +12,17 @@
     <body>
         <div>
             <label class="open"><input type="file" /><div>Open</div></label>
-            <button class="save">Save</button>
-            <button class="undo" title="undo">&cularr;</button>
-            <button class="redo" title="redo">&curarr;</button>
+            <label class="save"><div>Save</div></label>
+            <label class="undo" title="undo"><div>&cularr;</div></label>
+            <label class="redo" title="redo"><div>&curarr;</div></label>
             <label><div class="label">Layers</div></label>
-            <button class="add layer" title="Add a layer">+</button>
+            <label class="add layer" title="Add a layer"><div>+</div></label>
             <label><div class="label">Groups</div></label>
-            <button class="add group" title="Add a group">+</button>
-            <label class="close" title="Close all groups"><input type="checkbox" name="close"><div>&#10561;</div></button></label>
-            <button class="clear">Clear</button>
-            <label class="mesh"><input type="checkbox" name="mesh"><div>Mesh</div></button></label>
-            <button class="animate">Animate</button>
+            <label class="add group" title="Add a group"><div>+</div></label>
+            <label class="close" title="Close all groups"><input type="checkbox" name="close"><div>&#10561;</div></label></label>
+            <label class="clear"><div>Clear</div></label>
+            <label class="mesh"><input type="checkbox" name="mesh"><div>Mesh</div></label></label>
+            <label class="animate"><div>Animate</div></label>
             <input type="range" name="speed" min="1" max="30" step="1" value="5">
         </div>
         <svg xmlns="http://www.w3.org/2000/svg">
