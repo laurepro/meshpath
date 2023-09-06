@@ -1,8 +1,9 @@
 class Project {
   constructor() {
+    this.history = new History();
     let init = `{"layer":[[[]]],"background":"","width":${window.innerWidth},"height":${window.innerHeight},"close":false}`;
     this.load(localStorage.getItem("project") || init);
-    this.history = new History();
+    this.save(true);
     this.svg = {
       svg: document.querySelector("body>svg"),
       layers: document.querySelector("body>svg>g#layers"),
@@ -66,10 +67,10 @@ ${this.animation()}
       switch (mime) {
         case "svg+xml":
           let svg = new DOMParser().parseFromString(re.target.result, "image/svg+xml");
-          let root = svg.querySelector('svg');
-          that.width = root.getAttribute('width');
-          that.height = root.getAttribute('height');
-          that.viewport = root.getAttribute('viewport');
+          let root = svg.querySelector("svg");
+          that.width = root.getAttribute("width");
+          that.height = root.getAttribute("height");
+          that.viewport = root.getAttribute("viewport");
           let meshpath = svg.querySelector("meshpath");
           if (meshpath) {
             let layer = JSON.parse(atob(meshpath.getAttribute("layers")));
@@ -131,7 +132,7 @@ ${this.animation()}
     this.drawSvg();
   }
   redo() {
-    this.load(history.go(1));
+    this.load(this.history.go(1));
     this.save(false);
     this.drawSvg();
   }
@@ -149,10 +150,10 @@ ${this.animation()}
   getLayer(layer) {
     return this.layer[layer];
   }
-  getGroup(layer,group){
+  getGroup(layer, group) {
     return this.layer[layer][group];
   }
-  curGroupEmpty(){
+  curGroupEmpty() {
     return this.layer[this.curlayer][this.curgroup].length == 0;
   }
   drawLayerAll() {
@@ -162,7 +163,7 @@ ${this.animation()}
     return `<path layer="${layer}" class="${layer == this.curlayer ? "active" : ""}" d="${this.layer[layer].map((group) => this.drawGroup(group)).join(" ")}" stroke="black" fill="none"/>`;
   }
   drawGroup(group) {
-    return bezierPath(group.map((point) => [point.x, point.y])) // + (this.close ? ' Z' : '');
+    return bezierPath(group.map((point) => [point.x, point.y])); // + (this.close ? ' Z' : '');
   }
   drawHookAll() {
     this.svg.hooks.innerHTML = this.layer.map((l, layer) => this.drawHook(layer)).join("");
@@ -183,7 +184,7 @@ ${this.animation()}
     let path = [];
     this.layer.forEach((l, layer) => {
       path.push(this.layer[layer][group][point]);
-    })
+    });
     return `<path group="${group}" point="${point}" class="${group == this.curgroup ? "active" : ""}" d="${path.map((point, p) => `${p == 0 ? "M" : "L"} ${point.x},${point.y}`).join(" ")}" marker-end="url(#arrowhead)" fill="none"/>`;
   }
   drawSvg() {
@@ -192,16 +193,32 @@ ${this.animation()}
     this.drawMeshAll();
   }
   addLayer() {
-    let prev = this.curlayer;
-    let next = Math.min(this.curlayer + 1, this.layer.length - 1);
-    this.layer.push([[]]);
-    
-    console.log(prev,next)
-    this.layer = (this.layer.slice(0,prev)).concat([[]], this.layer.slice(next));
-    this.layer[next] = JSON.parse(JSON.stringify(this.layer[this.layer.length - 1]));
+    let prev = parseInt(this.curlayer);
+    let next = prev + 1;
+    if (next == this.layer.length) {
+      this.layer[next] = JSON.parse(JSON.stringify(this.layer[this.layer.length - 1]));
+    } else {
+      let newLayer = [[]];
+      this.layer[prev].forEach((g, group) => {
+        this.layer[prev][group].forEach((p, point) => {
+          newLayer[group][point] = {
+            x: this.layer[prev][group][point].x + ((this.layer[next][group][point].x - this.layer[prev][group][point].x) / 2),
+            y: this.layer[prev][group][point].y + ((this.layer[next][group][point].y - this.layer[prev][group][point].y) / 2),
+          };
+        });
+      });
+      this.layer.splice(next,0,newLayer);
+    }
     this.save(true);
     this.drawSvg();
     return next;
+  }
+  removeLayer() {
+    this.layer.splice(this.curlayer, 1);
+    this.curlayer = Math.min(this.curlayer, this.layer.length -1);
+    this.save(true);
+    this.drawSvg();
+    return this.curlayer;
   }
   addGroup() {
     this.layer.forEach((l, layer) => {
@@ -209,6 +226,15 @@ ${this.animation()}
     });
     this.save(true);
     return this.layer[0].length - 1;
+  }
+  removeGroup() {
+    this.layer.forEach((l,layer)=>{
+      this.layer[layer].splice(this.curgroup,1);
+    })
+    this.curgroup = Math.min(this.curgroup, this.layer[0].length -1);
+    this.save(true);
+    this.drawSvg();
+    return this.curgroup;
   }
   activateGroup(g) {
     this.curgroup = g;
@@ -219,12 +245,19 @@ ${this.animation()}
   }
   activateLayer(l) {
     this.curlayer = l;
-    this.svg.layers.querySelector("path.active").classList.remove("active");
+    this.svg.layers.querySelectorAll("path.active").forEach((l) => l.classList.remove("active"));
     this.svg.layers.querySelector(`path[layer="${l}"]`).classList.add("active");
-    this.svg.hooks.querySelector("g[layer].active").classList.remove("active");
+    this.svg.hooks.querySelectorAll("g[layer].active").forEach((g) => g.classList.remove("active"));
     let active = this.svg.hooks.querySelector(`g[layer="${l}"]`);
     active.classList.add("active");
     this.svg.hooks.appendChild(active);
+  }
+  reverseGroup() {
+    this.layer.forEach((l,layer)=>{
+      this.layer[layer][this.curgroup].reverse();
+    })
+    this.save(true);
+    this.drawSvg();
   }
   activateMesh(active) {
     this.svg.meshes.style.display = active ? "initial" : "";
@@ -234,7 +267,7 @@ ${this.animation()}
   }
   animation() {
     return `
-    <path stroke="blue" stroke-width="3" fill="${this.close ? '#00008080' : 'none'}">
+    <path stroke="blue" stroke-width="3" fill="${this.close ? "#00008080" : "none"}">
         <animate 
             dur="${this.duration}s" 
             repeatCount="indefinite" 
@@ -245,7 +278,7 @@ ${this.animation()}
     </path>`;
   }
   animate(start) {
-    this.svg.animate.innerHTML = start ?  this.animation() : "";
+    this.svg.animate.innerHTML = start ? this.animation() : "";
   }
   pointCount(group) {
     return this.layer[0][group].length;
@@ -257,7 +290,7 @@ ${this.animation()}
     return this.layer.length;
   }
   addPoint(group, index) {
-    this.layer.forEach((l,layer) => {
+    this.layer.forEach((l, layer) => {
       let points = [this.layer[layer][group][index]];
       if (index > 0) {
         points.unshift({
@@ -277,15 +310,15 @@ ${this.animation()}
     this.drawSvg();
   }
   removePoint(group, index) {
-    this.layer.forEach((l,layer) => {
+    this.layer.forEach((l, layer) => {
       this.layer[layer][group] = this.layer[layer][group].slice(0, index).concat(this.layer[layer][group].slice(index + 1));
-    })
+    });
     this.save(true);
     this.drawSvg();
   }
   applyPoint(layer, group, hook) {
     let source = this.layer[layer][group];
-    this.layer.forEach((l,cible) => {
+    this.layer.forEach((l, cible) => {
       if (cible != layer) {
         if (hook == 1) {
           this.layer[cible][group] = this.layer[cible][group].concat(source.slice(this.layer[cible][group].length));
@@ -293,7 +326,7 @@ ${this.animation()}
           this.layer[cible][group] = source.slice(0, source.length - this.layer[cible][group].length).concat(this.layer[cible][group]);
         }
       }
-    })
+    });
     this.save(true);
     this.drawSvg();
   }
@@ -308,7 +341,7 @@ ${this.animation()}
     path = simplify(path);
     this.layer[this.curlayer][group] = path;
     this.save(false);
-    this.svg.hooks.querySelector(`g[layer="${this.curlayer}"]`).outerHTML = this.drawHook(group, hook);
+    this.svg.hooks.querySelector(`g[layer="${this.curlayer}"]`).outerHTML = this.drawHook(this.curlayer);
     this.svg.layers.querySelector(`path[layer="${this.curlayer}"]`).outerHTML = this.drawLayer(this.curlayer);
   }
   movePoint(group, index, x, y) {

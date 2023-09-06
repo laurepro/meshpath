@@ -11,18 +11,21 @@
     </head>
     <body>
         <div>
-            <label class="clear"><div>New</div></label>
-            <label class="open"><input type="file" /><div>Open</div></label>
-            <label class="save"><div>Save</div></label>
+            <label class="clear" title="Clear project"><div>New</div></label>
+            <label class="open" title="Upload project or background"><input type="file" /><div>Open</div></label>
+            <label class="save" title="Download project"><div>Save</div></label>
             <label class="undo" title="undo"><div>&cularr;</div></label>
             <label class="redo" title="redo"><div>&curarr;</div></label>
             <label><div class="label">Layers</div></label>
             <label class="add layer" title="Add a layer"><div>+</div></label>
+            <label class="remove layer" title="Remove a layer"><div>&#128465;</div></label>
             <label><div class="label">Groups</div></label>
             <label class="add group" title="Add a group"><div>+</div></label>
-            <label class="close"><input type="checkbox" name="close"><div>Close</div></label></label>
-            <label class="mesh"><input type="checkbox" name="mesh"><div>Mesh</div></label></label>
-            <label class="animate"><div>Animate</div></label>
+            <label class="remove group" title="Remove a group"><div>&#128465;</div></label>
+            <label class="reverse" title="Reverse path group"><div>&#9775;</div></label>
+            <label class="close" title="Close all pathes"><input type="checkbox" name="close"><div>Close</div></label></label>
+            <label class="mesh" title="Show/hide mesh"><input type="checkbox" name="mesh"><div>Mesh</div></label></label>
+            <label class="animate" title="Show animation"><div>Animate</div></label>
             <input type="range" name="speed" min="1" max="30" step="1" value="5">
         </div>
         <svg xmlns="http://www.w3.org/2000/svg">

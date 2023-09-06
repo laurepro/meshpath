@@ -9,7 +9,7 @@ class History {
   }
   add() {
     this.index++;
-    let portion = this.list.slice(0, this.index + 1);
+    let portion = this.list.slice(0, this.index);
     let ajout = [];
     Array.from(arguments).forEach((a) => ajout.push(JSON.parse(JSON.stringify(a))));
     portion.push(ajout);
@@ -17,9 +17,9 @@ class History {
     this.store();
   }
   go(sens) {
+    let extract = [];
     this.index += sens;
     this.index = Math.min(Math.max(this.index, 1), this.list.length);
-    let extract = [];
     this.list[this.index - 1].forEach((i) => extract.push(JSON.parse(JSON.stringify(i))));
     this.store();
     return extract;
@@ -36,5 +36,8 @@ class History {
   clear() {
     localStorage.removeItem("history");
     this.load();
+  }
+  isEmpty() {
+    return this.list.length == 0;
   }
 }

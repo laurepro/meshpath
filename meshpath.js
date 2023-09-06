@@ -18,10 +18,26 @@ window.addEventListener("load", (le) => {
     }
   });
   tools.querySelector("label.add.layer").addEventListener("click", (ce) => {
-    tools.addlayer(project.addLayer());
+    if (project.pointCount(0) > 0) {
+      tools.addlayer(project.addLayer());
+    }
+  });
+  tools.querySelector("label.remove.layer").addEventListener("click", (ce) => {
+    if (project.layerCount() > 1) {
+      tools.querySelector(`label[layer="${project.removeLayer()}"]`).click();
+      Array.from(tools.querySelectorAll("label[layer]")).pop().remove();
+    }
   });
   tools.querySelector("label.add.group").addEventListener("click", (ce) => {
-    tools.addgroup(project.addGroup());
+    if (project.pointCount(0) > 0) {
+      tools.addgroup(project.addGroup());
+    }
+  });
+  tools.querySelector("label.remove.group").addEventListener("click", (ce) => {
+    if (project.groupCount() > 1) {
+      tools.querySelector(`label[group="${project.removeGroup()}"]`).click();
+      Array.from(tools.querySelectorAll("label[group]")).pop().remove();
+    }
   });
   tools.addgroup = (id) => {
     let newgroup = document.createElement("label");
@@ -31,11 +47,12 @@ window.addEventListener("load", (le) => {
     newgroup.click();
   };
   tools.addlayer = (id) => {
+    let newid = tools.querySelectorAll('label>input[name="layer"]').length;
     let newlayer = document.createElement("label");
-    newlayer.setAttribute("layer", id);
-    newlayer.innerHTML = `<input name="layer" type="radio"><div>${id}</div>`;
+    newlayer.setAttribute("layer", newid);
+    newlayer.innerHTML = `<input name="layer" type="radio"><div>${newid}</div>`;
     tools.insertBefore(newlayer, tools.querySelector("label.add.layer"));
-    newlayer.click();
+    tools.querySelector(`label[layer="${id}"]`).click();
   };
   tools.addEventListener("click", (ce) => {
     if (ce.target.tagName == "INPUT") {
@@ -68,15 +85,44 @@ window.addEventListener("load", (le) => {
   });
   tools.querySelector("label.undo").addEventListener("click", (ce) => {
     project.undo();
+    tools.reInit();
   });
   tools.querySelector("label.redo").addEventListener("click", (ce) => {
     project.redo();
+    tools.reInit();
   });
+  tools.reInit = () => {
+    let layers = project.layerCount(),
+      layer = Math.min(project.getCurLayer(), layers - 1),
+      groups = project.groupCount(),
+      group = Math.min(project.getCurGroup(), layers - 1),
+      llabels = tools.querySelectorAll("label[layer]"),
+      glabels = tools.querySelectorAll("label[group]");
+    if (layers > llabels.length) {
+      for (var l = llabels.length; l < layers; l++) {
+        tools.addlayer(l);
+      }
+    } else if (layers < llabels.length) {
+      Array.from(llabels).pop().remove();
+    }
+    tools.querySelector(`label[layer="${layer}"]`).click();
+    if (groups > glabels.length) {
+      for (var g = glabels.length; g < groups; g++) {
+        tools.addgroup(g);
+      }
+    } else if (groups < glabels.length) {
+      Array.from(glabels).pop().remove();
+    }
+    tools.querySelector(`label[group="${group}"]`).click();
+  };
   tools.querySelector("label.save").addEventListener("click", (ce) => {
     project.saveToFile();
   });
   tools.querySelector("label.animate").addEventListener("click", (ce) => {
     project.animate(true);
+  });
+  tools.querySelector("label.reverse").addEventListener("click", (ce) => {
+    project.reverseGroup();
   });
   document.addEventListener("mousedown", () => project.animate(false));
 
@@ -129,7 +175,7 @@ window.addEventListener("load", (le) => {
       let layer = mu.target.parentNode.parentNode.getAttribute("layer");
       project.applyPoint(layer, group, action.trace);
     }
-    if (action.trace || action.move) {
+    if (action.move) {
       project.historize();
     }
     action.trace = false;
@@ -159,11 +205,12 @@ window.addEventListener("load", (le) => {
     }
   });
 
-  for (var layer = 0; layer < project.layerCount(); layer++) {
-    tools.addlayer(layer);
-  }
-  for (var group = 0; group < project.groupCount(); group++) {
-    tools.addgroup(group);
-  }
+  // for (var layer = 0; layer < project.layerCount(); layer++) {
+  //   tools.addlayer(layer);
+  // }
+  // for (var group = 0; group < project.groupCount(); group++) {
+  //   tools.addgroup(group);
+  // }
+  tools.reInit();
   tools.querySelector('label.close>input[type="checkbox"]').checked = project.close;
 });
