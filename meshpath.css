@@ -15,6 +15,7 @@ body>svg>g#meshes {
 
 body>svg>g#meshes>path  {
     stroke:yellowgreen;
+    stroke-width: 2px;
 }
 
 body>svg>g#meshes>path.active  {
@@ -24,12 +25,12 @@ body>svg>g#meshes>path.active  {
 body>svg>g#layers>path {
     fill: none;
     stroke: black;
-    stroke-width: 0.75px;
+    stroke-width: 1.5px;
 }
 
 body>svg>g#layers>path.active {
     stroke: orangered;
-    stroke-width: 2px;
+    stroke-width: 3px;
 }
 
 body>svg>g#hooks>g circle {
@@ -71,12 +72,21 @@ body>div {
     opacity: 0.8
 }
 
+body>div>div {
+    position: absolute;
+    right: 1rem;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    width: 4rem;
+}
+
 body>div>label>div {
     border: none;
     text-align: center;
     text-decoration: none;
     display: inline-block;
-    font-size: 12px;
+    font-size: 1rem;
     background-color: cadetblue;
     color: white;
     height: 1.5rem;
@@ -85,7 +95,20 @@ body>div>label>div {
     user-select: none;
 }
 
-body>div>label>input {
+body>div>div>label>div {
+    border: none;
+    text-align: center;
+    text-decoration: none;
+    font-size: 1rem;
+    font-weight: bold;
+    width: 2rem;
+    background-color: cadetblue;
+    color: white;
+    cursor: pointer;
+    user-select: none;
+}
+
+body>div label>input {
     display: none;
 }
 
@@ -95,18 +118,18 @@ body>div>label {
     padding: 0;
 }
 
-body>div>label>div.label:hover,
-body>div>label>div.label {
+body>div label>div.label:hover,
+body>div label>div.label {
     background-color: darkkhaki;
     cursor:auto;
 }
 
-body>div>label>input[type="checkbox"]:checked~div,
-body>div>label>input[type="radio"]:checked~div {
+body>div label>input[type="checkbox"]:checked~div,
+body>div label>input[type="radio"]:checked~div {
     background-color: chocolate;
 }
 
 body>div>button:hover,
-body>div>label>div:hover {
+body>div label>div:hover {
     background-color: darksalmon;
 }
