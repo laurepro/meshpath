@@ -13,46 +13,46 @@ body>svg>g#meshes {
     display: none;
 }
 
-body>svg>g#meshes>path  {
-    stroke:yellowgreen;
-    stroke-width: 2px;
+body>svg>g#meshes>path {
+    stroke: yellowgreen;
+    stroke-width: 0.75px;
 }
 
-body>svg>g#meshes>path.active  {
-    stroke:blueviolet;
+body>svg>g#meshes>path.active {
+    stroke: blueviolet;
 }
 
 body>svg>g#layers>path {
     fill: none;
     stroke: black;
-    stroke-width: 1.5px;
+    stroke-width: 1px;
 }
 
 body>svg>g#layers>path.active {
     stroke: orangered;
-    stroke-width: 3px;
+    stroke-width: 1.5px;
 }
 
 body>svg>g#hooks>g circle {
     fill: none;
     stroke: black;
-    stroke-width: 1px;
+    stroke-width: 0.75px;
 }
 
 body>svg>g#hooks>g circle {
     fill: lawngreen;
     stroke: transparent;
-    stroke-width: 2px;
+    stroke-width: 1px;
 }
 
 
 body>svg>g#hooks>g.active circle {
     stroke: red;
-    stroke-width: 2px;
+    stroke-width: 1px;
 }
 
 body>svg>g#hooks>g>g.active circle {
-    fill:blue;
+    fill: blue;
 }
 
 body>svg>g#hooks>g.active circle:hover {
@@ -64,7 +64,7 @@ body>div.hidden {
 }
 
 body>div {
-    width:100%;
+    width: 100%;
     display: flex;
     gap: 5px;
     position: fixed;
@@ -72,14 +72,17 @@ body>div {
     opacity: 0.8
 }
 
-body>div>div {
-    position: absolute;
-    right: 1rem;
-    display: flex;
-    flex-direction: row;
-    flex-wrap: wrap;
-    width: 4rem;
+body>div>label>input[type="text"],
+body>div>label>select {
+    font-size: 1rem;
+    background-color: cadetblue;
+    color: white;
 }
+
+.select-editable {position:relative; width:6rem; height:18px;}
+.select-editable select {position:absolute; top:0px; left:px; border:none; width:6rem}
+.select-editable input {position:absolute; top:0px; left:0px; width:5rem; padding: 3px; border: none; border-right:1px solid white}
+.select-editable select:focus, .select-editable input:focus {outline:none;}
 
 body>div>label>div {
     border: none;
@@ -90,7 +93,7 @@ body>div>label>div {
     background-color: cadetblue;
     color: white;
     height: 1.5rem;
-    padding:0.5rem;
+    padding: 0.5rem;
     cursor: pointer;
     user-select: none;
 }
@@ -108,8 +111,14 @@ body>div>div>label>div {
     user-select: none;
 }
 
-body>div label>input {
+body>div label>input:not([type="text"]) {
     display: none;
+}
+
+body>div select,
+body>div input[type="text"] {
+    height: 2.5rem;
+    width: 5rem;
 }
 
 body>div>label {
@@ -121,7 +130,7 @@ body>div>label {
 body>div label>div.label:hover,
 body>div label>div.label {
     background-color: darkkhaki;
-    cursor:auto;
+    cursor: auto;
 }
 
 body>div label>input[type="checkbox"]:checked~div,

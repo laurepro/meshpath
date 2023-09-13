@@ -1,7 +1,7 @@
 class Project {
   constructor() {
     this.history = new History();
-    let init = `{"layer":[[[]]],"background":"","width":${window.innerWidth},"height":${window.innerHeight},"close":false}`;
+    let init = `{"layer":[[[]]],"background":"","names":{"layer":["layer0"],"group":["group0"]},"width":${window.innerWidth},"height":${window.innerHeight},"close":false}`;
     this.load(localStorage.getItem("project") || init);
     this.save(true);
     this.svg = {
@@ -29,6 +29,7 @@ class Project {
   load(store) {
     let load = JSON.parse(store);
     this.layer = load.layer;
+    this.names = load.names;
     this.background = load.background;
     this.width = load.width;
     this.height = load.height;
@@ -40,7 +41,7 @@ class Project {
         `<?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <!-- Created with MeshPath (http://meshpath.laurepro.fr/) -->
 <svg xmlns="http://www.w3.org/2000/svg" width="${this.width}" height="${this.height}" viewBox="0 0 ${this.width} ${this.height}">
-<meshpath layers="${btoa(JSON.stringify(this.layer))}" />
+<meshpath layers="${btoa(JSON.stringify(this.layer))}" names="${btoa(JSON.stringify(this.names))}" />
 ${this.svg.image.outerHTML}
 ${this.animation()}
 </svg>`,
@@ -74,8 +75,13 @@ ${this.animation()}
           let meshpath = svg.querySelector("meshpath");
           if (meshpath) {
             let layer = JSON.parse(atob(meshpath.getAttribute("layers")));
+            let names = JSON.parse(atob(meshpath.getAttribute("names")));
             that.layer.length = 0;
             layer.forEach((l) => that.layer.push(l));
+            that.names.layer.length = 0;
+            names.layer.forEach((ln) => that.names.layer.push(ln));
+            that.names.group.length = 0;
+            names.group.forEach((gn) => that.names.group.push(gn));
           }
           var img = svg.querySelector("image#background");
           if (img) {
@@ -106,6 +112,7 @@ ${this.animation()}
   stringify() {
     return JSON.stringify({
       layer: this.layer,
+      names: this.names,
       background: this.background,
       width: this.width,
       height: this.height,
@@ -153,6 +160,20 @@ ${this.animation()}
   getGroup(layer, group) {
     return this.layer[layer][group];
   }
+  getLayerName(layer) {
+    return this.names.layer[layer];
+  }
+  getGroupName(group) {
+    return this.names.group[group];
+  }
+  setLayerName(name) {
+    this.names.layer[this.curlayer] = name;
+    this.save(true);
+  }
+  setGroupName(name) {
+    this.names.group[this.curgroup] = name;
+    this.save(true);
+  }
   curGroupEmpty() {
     return this.layer[this.curlayer][this.curgroup].length == 0;
   }
@@ -193,21 +214,31 @@ ${this.animation()}
     this.drawMeshAll();
   }
   addLayer() {
-    let prev = parseInt(this.curlayer);
+    const regex = new RegExp("[0-9]+");
+    let numlayer = this.names.layer.length;
+    let maxlayer = 0;
+    this.names.layer.forEach((n) => (maxlayer = Math.max(maxlayer, parseInt((n.match(regex) || ["0"]).shift()))));
+    if (numlayer < maxlayer) {
+      numlayer = maxlayer + 1;
+    }
+    let prev = this.curlayer;
     let next = prev + 1;
     if (next == this.layer.length) {
       this.layer[next] = JSON.parse(JSON.stringify(this.layer[this.layer.length - 1]));
+      this.names.layer[next] = "layer" + numlayer;
     } else {
       let newLayer = [[]];
       this.layer[prev].forEach((g, group) => {
+        newLayer[group] = [];
         this.layer[prev][group].forEach((p, point) => {
           newLayer[group][point] = {
-            x: this.layer[prev][group][point].x + ((this.layer[next][group][point].x - this.layer[prev][group][point].x) / 2),
-            y: this.layer[prev][group][point].y + ((this.layer[next][group][point].y - this.layer[prev][group][point].y) / 2),
+            x: this.layer[prev][group][point].x + (this.layer[next][group][point].x - this.layer[prev][group][point].x) / 2,
+            y: this.layer[prev][group][point].y + (this.layer[next][group][point].y - this.layer[prev][group][point].y) / 2,
           };
         });
       });
-      this.layer.splice(next,0,newLayer);
+      this.layer.splice(next, 0, newLayer);
+      this.names.layer.splice(next, 0, "layer" + numlayer);
     }
     this.save(true);
     this.drawSvg();
@@ -215,23 +246,31 @@ ${this.animation()}
   }
   removeLayer() {
     this.layer.splice(this.curlayer, 1);
-    this.curlayer = Math.min(this.curlayer, this.layer.length -1);
+    this.curlayer = Math.min(this.curlayer, this.layer.length - 1);
     this.save(true);
     this.drawSvg();
     return this.curlayer;
   }
   addGroup() {
+    const regex = new RegExp("[0-9]+");
+    let numgroup = this.names.group.length;
+    let maxgroup = 0;
+    this.names.group.forEach((n) => (maxgroup = Math.max(maxgroup, parseInt((n.match(regex) || ["0"]).shift()))));
+    if (numgroup < maxgroup) {
+      numgroup = maxgroup + 1;
+    }
     this.layer.forEach((l, layer) => {
       this.layer[layer].push([]);
     });
+    this.names.group.push("group" + numgroup);
     this.save(true);
     return this.layer[0].length - 1;
   }
   removeGroup() {
-    this.layer.forEach((l,layer)=>{
-      this.layer[layer].splice(this.curgroup,1);
-    })
-    this.curgroup = Math.min(this.curgroup, this.layer[0].length -1);
+    this.layer.forEach((l, layer) => {
+      this.layer[layer].splice(this.curgroup, 1);
+    });
+    this.curgroup = Math.min(this.curgroup, this.layer[0].length - 1);
     this.save(true);
     this.drawSvg();
     return this.curgroup;
@@ -253,9 +292,9 @@ ${this.animation()}
     this.svg.hooks.appendChild(active);
   }
   reverseGroup() {
-    this.layer.forEach((l,layer)=>{
+    this.layer.forEach((l, layer) => {
       this.layer[layer][this.curgroup].reverse();
-    })
+    });
     this.save(true);
     this.drawSvg();
   }
