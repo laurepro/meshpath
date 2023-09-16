@@ -87,8 +87,8 @@ ${this.animation()}
           if (img) {
             that.background = img.getAttribute("href");
           }
-          that.save(false);
           that.history.clear();
+          that.save(true);
           location.reload();
         default:
           var img = new Image();
@@ -276,14 +276,14 @@ ${this.animation()}
     return this.curgroup;
   }
   activateGroup(g) {
-    this.curgroup = g;
+    this.curgroup = parseInt(g);
     this.svg.hooks.querySelectorAll("g[group]").forEach((g) => g.classList.remove("active"));
     this.svg.hooks.querySelectorAll(`g[group="${g}"]`).forEach((g) => g.classList.add("active"));
     this.svg.meshes.querySelectorAll("path.active").forEach((g) => g.classList.remove("active"));
     this.svg.meshes.querySelectorAll(`path[group="${g}"]`).forEach((g) => g.classList.add("active"));
   }
   activateLayer(l) {
-    this.curlayer = l;
+    this.curlayer = parseInt(l);
     this.svg.layers.querySelectorAll("path.active").forEach((l) => l.classList.remove("active"));
     this.svg.layers.querySelector(`path[layer="${l}"]`).classList.add("active");
     this.svg.hooks.querySelectorAll("g[layer].active").forEach((g) => g.classList.remove("active"));

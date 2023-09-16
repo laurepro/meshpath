@@ -13,7 +13,7 @@ window.addEventListener("load", (le) => {
       project.activateGroup(group);
       interface.groups.querySelector(`option[value="${group}"]`).selected = true;
       interface.tools.querySelector('input[name="groupname"]').value = project.getGroupName(group);
-    } 
+    },
   };
   document.addEventListener("keyup", (ke) => {
     if (ke.code == "Escape") {
@@ -38,8 +38,9 @@ window.addEventListener("load", (le) => {
   });
   interface.tools.querySelector("label.remove.layer").addEventListener("click", (ce) => {
     if (project.layerCount() > 1) {
-      interface.tools.querySelector(`label[layer="${project.removeLayer()}"]`).click();
-      Array.from(interface.tools.querySelectorAll("label[layer]")).pop().remove();
+      Array.from(interface.layers.querySelectorAll("option")).pop().remove();
+      interface.activateLayer(project.removeLayer());
+      interface.layers.querySelectorAll("option").forEach((o, k) => (o.text = project.getLayerName(k)));
     }
   });
   interface.tools.querySelector("label.add.group").addEventListener("click", (ce) => {
@@ -49,8 +50,9 @@ window.addEventListener("load", (le) => {
   });
   interface.tools.querySelector("label.remove.group").addEventListener("click", (ce) => {
     if (project.groupCount() > 1) {
-      interface.tools.querySelector(`label[group="${project.removeGroup()}"]`).click();
-      Array.from(interface.tools.querySelectorAll("label[group]")).pop().remove();
+      Array.from(interface.groups.querySelectorAll("option")).pop().remove();
+      interface.activateGroup(project.removeGroup());
+      interface.groups.querySelectorAll("option").forEach((o, k) => (o.text = project.getGroupName(k)));
     }
   });
   interface.tools.querySelector('input[name="layername"]').addEventListener("change", (ce) => {
@@ -117,27 +119,16 @@ window.addEventListener("load", (le) => {
     interface.tools.reInit();
   });
   interface.tools.reInit = () => {
-    let layers = project.layerCount(),
-      layer = Math.min(project.getCurLayer(), layers - 1),
-      groups = project.groupCount(),
-      group = Math.min(project.getCurGroup(), layers - 1),
-      llabels = interface.tools.querySelectorAll("label[layer]"),
-      glabels = interface.tools.querySelectorAll("label[group]");
-    if (layers > llabels.length) {
-      for (var l = llabels.length; l < layers; l++) {
-        interface.tools.addlayer(l);
-      }
-    } else if (layers < llabels.length) {
-      Array.from(llabels).pop().remove();
+    interface.layers.length = 0;
+    for (let i = 0; i < project.layerCount(); i++) {
+      interface.tools.addlayer(i);
     }
-    interface.activateLayer(layer);
-    if (groups > glabels.length) {
-      for (var g = glabels.length; g < groups; g++) {
-        interface.tools.addgroup(g);
-      }
-    } else if (groups < glabels.length) {
-      Array.from(glabels).pop().remove();
+    interface.activateLayer(project.getCurLayer());
+    interface.groups.length = 0;
+    for (let i = 0; i < project.groupCount(); i++) {
+      interface.tools.addgroup(i);
     }
+    interface.activateGroup(project.getCurGroup());
   };
   interface.tools.querySelector("label.save").addEventListener("click", (ce) => {
     project.saveToFile();
@@ -148,6 +139,9 @@ window.addEventListener("load", (le) => {
   interface.tools.querySelector("label.reverse").addEventListener("click", (ce) => {
     project.reverseGroup();
   });
+  interface.tools.querySelector('input[name="bkg"]').addEventListener("change", (ce) => {
+    project.svg.image.style.opacity = ce.target.value;
+  });
   document.addEventListener("mousedown", () => project.animate(false));
 
   const action = {
@@ -155,45 +149,31 @@ window.addEventListener("load", (le) => {
     group: false,
     move: false,
   };
-
-  project.svg.svg.addEventListener("dblclick", (dc) => {
-    if (dc.target.tagName == "circle") {
-      let layer = dc.target.parentNode.parentNode.getAttribute("layer");
-      interface.activateLayer(layer);
-      // interface.tools.querySelector(`label[group="${dc.target.parentNode.getAttribute("group")}"]>input`).click();
-    }
-  });
-
   project.svg.svg.addEventListener("mousedown", (md) => {
-    if (md.shiftKey) {
-      if (md.target.tagName == "circle") {
-        let index = [...md.target.parentNode.children].indexOf(md.target);
-        var group = md.target.parentNode.getAttribute("group");
+    if (md.target.tagName == "circle") {
+      let index = [...md.target.parentNode.children].indexOf(md.target);
+      if (md.shiftKey) {
+        let group = md.target.parentNode.getAttribute("group");
         if (index == 0 || index == project.pointCount(group) - 1) {
           action.trace = index == 0 ? -1 : 1;
           action.group = group;
         }
-      } else if (project.curGroupEmpty()) {
-        action.trace = true;
-        action.group = false;
+      } else if (md.ctrlKey) {
+        let g = md.target.parentNode.getAttribute("group");
+        project.addPoint(g, index);
+      } else if (md.altKey) {
+        let g = md.target.parentNode.getAttribute("group");
+        project.removePoint(g, index);
+      } else {
+        interface.activateLayer(md.target.parentNode.parentNode.getAttribute("layer"));
+        interface.activateGroup(md.target.parentNode.getAttribute("group"));
+        action.move = md.target;
       }
-    } else {
-      if (md.target.tagName == "circle") {
-        let group = md.target.parentNode;
-        let index = [...group.children].indexOf(md.target);
-        if (md.ctrlKey) {
-          let g = group.getAttribute("group");
-          project.addPoint(g, index);
-        } else if (md.altKey) {
-          let g = group.getAttribute("group");
-          project.removePoint(g, index);
-        } else if (group.parentNode.getAttribute("layer") == project.getCurLayer()) {
-          action.move = md.target;
-        }
-      }
+    } else if (project.curGroupEmpty()) {
+      action.trace = true;
+      action.group = false;
     }
   });
-
   project.svg.svg.addEventListener("mouseup", (mu) => {
     if (action.trace !== false && mu.target.tagName == "circle") {
       let group = mu.target.parentNode.getAttribute("group");
@@ -207,7 +187,6 @@ window.addEventListener("load", (le) => {
     action.group = false;
     action.move = false;
   });
-
   project.svg.svg.addEventListener("mousemove", (me) => {
     if (me.buttons == 1) {
       if (me.shiftKey && action.trace !== false) {
@@ -230,12 +209,6 @@ window.addEventListener("load", (le) => {
     }
   });
 
-  // for (var layer = 0; layer < project.layerCount(); layer++) {
-  //   interface.tools.addlayer(layer);
-  // }
-  // for (var group = 0; group < project.groupCount(); group++) {
-  //   interface.tools.addgroup(group);
-  // }
   interface.tools.reInit();
   interface.tools.querySelector('label.close>input[type="checkbox"]').checked = project.close;
 });

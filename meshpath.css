@@ -79,8 +79,8 @@ body>div>label>select {
     color: white;
 }
 
-.select-editable {position:relative; width:6rem; height:18px;}
-.select-editable select {position:absolute; top:0px; left:px; border:none; width:6rem}
+.select-editable {position:relative; width:6.2rem; height:18px;}
+.select-editable select {position:absolute; top:0px; left:px; border:none; width:6.2rem}
 .select-editable input {position:absolute; top:0px; left:0px; width:5rem; padding: 3px; border: none; border-right:1px solid white}
 .select-editable select:focus, .select-editable input:focus {outline:none;}
 
@@ -113,6 +113,18 @@ body>div>div>label>div {
 
 body>div label>input:not([type="text"]) {
     display: none;
+}
+
+body>div input[type="range"] {
+    width: 7rem;
+    margin-top: 15px;
+}
+body>div input[type="range"]::before {
+    content:attr(title);
+    position: absolute;
+    top: 5px;
+    font-size: 0.7rem;
+    font-weight: bold;
 }
 
 body>div select,

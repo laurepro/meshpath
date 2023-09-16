@@ -3,24 +3,28 @@ class History {
     this.load();
   }
   load() {
-    let storage = JSON.parse(localStorage.getItem("history") || '{"list":[],"index":0}');
+    let storage = JSON.parse(localStorage.getItem("history") || '{"list":[],"index":null}');
     this.list = storage.list;
     this.index = storage.index;
   }
   add() {
-    this.index++;
-    let portion = this.list.slice(0, this.index);
+    if(this.index != null) {
+      this.index++;
+    }
+    else {
+      this.index = 0;
+    }
+    this.list.length = this.index;
     let ajout = [];
     Array.from(arguments).forEach((a) => ajout.push(JSON.parse(JSON.stringify(a))));
-    portion.push(ajout);
-    this.list = portion;
+    this.list.push(ajout);
     this.store();
   }
   go(sens) {
     let extract = [];
     this.index += sens;
-    this.index = Math.min(Math.max(this.index, 1), this.list.length);
-    this.list[this.index - 1].forEach((i) => extract.push(JSON.parse(JSON.stringify(i))));
+    this.index = Math.min(Math.max(this.index, 0), this.list.length - 1);
+    this.list[this.index].forEach((i) => extract.push(JSON.parse(JSON.stringify(i))));
     this.store();
     return extract;
   }
