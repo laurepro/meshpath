@@ -31,17 +31,19 @@
             <input type="range" name="speed" min="1" max="30" step="1" value="5" title="animation speed">
             <input type="range" name="bkg" min="0" max="1" step="0.1" value="1" title="background opacity">
         </div>
-        <svg xmlns="http://www.w3.org/2000/svg">
-            <defs>
-                <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="-5" refY="2.5" orient="auto">
-                    <polygon points="0 0, 7 2.5, 0 5" />
-                </marker>
-            </defs>
-            <image id="background" preserveAspectRatio="none" />
-            <g id="layers"></g>
-            <g id="hooks"></g>
-            <g id="meshes"></g>
-            <g id="animate"></g>
-        </svg>
+        <section id="svg">
+            <svg xmlns="http://www.w3.org/2000/svg" version="1.1">
+                <defs>
+                    <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="-5" refY="2.5" orient="auto">
+                        <polygon points="0 0, 7 2.5, 0 5" />
+                    </marker>
+                </defs>
+                <image id="background" preserveAspectRatio="none" />
+                <g id="layers"></g>
+                <g id="hooks"></g>
+                <g id="meshes"></g>
+                <g id="animate"></g>
+            </svg>
+        </section>
     </body>
 </html>

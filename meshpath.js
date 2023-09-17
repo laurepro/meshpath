@@ -189,15 +189,15 @@ window.addEventListener("load", (le) => {
   });
   project.svg.svg.addEventListener("mousemove", (me) => {
     if (me.buttons == 1) {
+      let x = me.offsetX / project.getScale(),
+        y = me.offsetY / project.getScale();
       if (me.shiftKey && action.trace !== false) {
         var group = action.group || project.getCurGroup();
-        project.tracePoint(group, action.trace, me.layerX, me.layerY);
+        project.tracePoint(group, action.trace, x, y);
       } else if (action.move !== false) {
         let group = action.move.parentNode;
         let g = group.getAttribute("group");
         let index = [...group.children].indexOf(action.move);
-        let x = me.layerX;
-        let y = me.layerY;
         if (x < 10) x = 0;
         if (y < 10) y = 0;
         if (x > project.width - 10) x = project.width;
@@ -206,6 +206,26 @@ window.addEventListener("load", (le) => {
         action.move.setAttribute("cy", y);
         project.movePoint(g, index, x, y);
       }
+    }
+  });
+
+  project.svg.container.addEventListener("wheel", (we) => {
+    if (we.ctrlKey) {
+      we.stopPropagation();
+      we.preventDefault();
+      let pointx = ((we.x + project.svg.container.scrollLeft) / project.svg.scale) * 100,
+        pointy = ((we.y + project.svg.container.scrollTop - project.svg.container.offsetTop) / project.svg.scale) * 100,
+        scale = project.getScale();
+      if (Math.abs(we.deltaY) > 50) {
+        scale -= we.deltaY / 1000;
+      } else {
+        scale += we.deltaY / 10;
+      }
+      scale = Math.max(scale, window.innerHeight / project.getHeight());
+
+      project.setScale(scale);
+      project.svg.container.scrollLeft = (pointx * project.svg.scale) / 100 - we.x;
+      project.svg.container.scrollTop = (pointy * project.svg.scale) / 100 - we.y + project.svg.container.offsetTop;
     }
   });
 

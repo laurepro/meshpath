@@ -9,53 +9,61 @@ html {
     font-size: 1rem !important;
 }
 
-body>svg>g#meshes {
+body>section#svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    text-align: center;
+}
+
+body>section#svg>svg>g#meshes {
     display: none;
 }
 
-body>svg>g#meshes>path {
+body>section#svg>svg>g#meshes>path {
     stroke: yellowgreen;
     stroke-width: 0.75px;
 }
 
-body>svg>g#meshes>path.active {
+body>section#svg>svg>g#meshes>path.active {
     stroke: blueviolet;
 }
 
-body>svg>g#layers>path {
+body>section#svg>svg>g#layers>path {
     fill: none;
     stroke: black;
     stroke-width: 1px;
 }
 
-body>svg>g#layers>path.active {
+body>section#svg>svg>g#layers>path.active {
     stroke: orangered;
     stroke-width: 1.5px;
 }
 
-body>svg>g#hooks>g circle {
+body>section#svg>svg>g#hooks>g circle {
     fill: none;
     stroke: black;
     stroke-width: 0.75px;
 }
 
-body>svg>g#hooks>g circle {
+body>section#svg>svg>g#hooks>g circle {
     fill: lawngreen;
     stroke: transparent;
     stroke-width: 1px;
 }
 
 
-body>svg>g#hooks>g.active circle {
+body>section#svg>svg>g#hooks>g.active circle {
     stroke: red;
     stroke-width: 1px;
 }
 
-body>svg>g#hooks>g>g.active circle {
+body>section#svg>svg>g#hooks>g>g.active circle {
     fill: blue;
 }
 
-body>svg>g#hooks>g.active circle:hover {
+body>section#svg>svg>g#hooks>g.active circle:hover {
     fill: red;
 }
 
@@ -69,7 +77,8 @@ body>div {
     gap: 5px;
     position: fixed;
     padding: 5px;
-    opacity: 0.8
+    opacity: 0.8;
+    z-index: 10;
 }
 
 body>div>label>input[type="text"],
@@ -79,10 +88,34 @@ body>div>label>select {
     color: white;
 }
 
-.select-editable {position:relative; width:6.2rem; height:18px;}
-.select-editable select {position:absolute; top:0px; left:px; border:none; width:6.2rem}
-.select-editable input {position:absolute; top:0px; left:0px; width:5rem; padding: 3px; border: none; border-right:1px solid white}
-.select-editable select:focus, .select-editable input:focus {outline:none;}
+.select-editable {
+    position: relative;
+    width: 6.2rem;
+    height: 18px;
+}
+
+.select-editable select {
+    position: absolute;
+    top: 0px;
+    left: px;
+    border: none;
+    width: 6.2rem
+}
+
+.select-editable input {
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    width: 5rem;
+    padding: 3px;
+    border: none;
+    border-right: 1px solid white
+}
+
+.select-editable select:focus,
+.select-editable input:focus {
+    outline: none;
+}
 
 body>div>label>div {
     border: none;
@@ -119,8 +152,9 @@ body>div input[type="range"] {
     width: 7rem;
     margin-top: 15px;
 }
+
 body>div input[type="range"]::before {
-    content:attr(title);
+    content: attr(title);
     position: absolute;
     top: 5px;
     font-size: 0.7rem;

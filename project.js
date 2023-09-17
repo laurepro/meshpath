@@ -5,12 +5,14 @@ class Project {
     this.load(localStorage.getItem("project") || init);
     this.save(true);
     this.svg = {
-      svg: document.querySelector("body>svg"),
-      layers: document.querySelector("body>svg>g#layers"),
-      hooks: document.querySelector("body>svg>g#hooks"),
-      meshes: document.querySelector("body>svg>g#meshes"),
-      image: document.querySelector("body>svg>image#background"),
-      animate: document.querySelector("body>svg>g#animate"),
+      scale: 1,
+      container: document.querySelector("body>section#svg"),
+      svg: document.querySelector("body>section#svg>svg"),
+      layers: document.querySelector("body>section#svg>svg>g#layers"),
+      hooks: document.querySelector("body>section#svg>svg>g#hooks"),
+      meshes: document.querySelector("body>section#svg>svg>g#meshes"),
+      image: document.querySelector("body>section#svg>svg>image#background"),
+      animate: document.querySelector("body>section#svg>svg>g#animate"),
     };
     this.curlayer = 0;
     this.curgroup = 0;
@@ -21,7 +23,7 @@ class Project {
   decorate() {
     this.svg.svg.setAttribute("height", this.height);
     this.svg.svg.setAttribute("width", this.width);
-    this.svg.svg.setAttribute("viewport", `0 0 ${this.width} ${this.height}`);
+    this.svg.svg.setAttribute("viewBox", `0 0 ${this.width} ${this.height}`);
     this.svg.image.setAttribute("href", this.background);
     this.svg.image.setAttribute("width", this.width);
     this.svg.image.setAttribute("height", this.height);
@@ -71,7 +73,7 @@ ${this.animation()}
           let root = svg.querySelector("svg");
           that.width = root.getAttribute("width");
           that.height = root.getAttribute("height");
-          that.viewport = root.getAttribute("viewport");
+          that.viewBox = root.getAttribute("viewBox");
           let meshpath = svg.querySelector("meshpath");
           if (meshpath) {
             let layer = JSON.parse(atob(meshpath.getAttribute("layers")));
@@ -147,6 +149,20 @@ ${this.animation()}
     this.close = closed;
     this.save(true);
     this.drawSvg();
+  }
+  getHeight() {
+    return this.height;
+  }
+  getWidth() {
+    return this.width;
+  }
+  getScale() {
+    return this.svg.scale;
+  }
+  setScale(value) {
+    this.svg.scale = value;
+    this.svg.svg.style.height = (this.height * value) + 'px';
+    this.svg.svg.style.width = (this.width * value) + 'px';
   }
   getCurLayer() {
     return this.curlayer;
