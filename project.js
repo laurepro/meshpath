@@ -319,11 +319,10 @@ ${this.animation()}
     this.svg.meshes.classList.toggle("show", active);
   }
   showMeshPoint(group, point) {
-    this.svg.meshes.querySelectorAll("path.show").forEach(p => p.classList.remove("show"));
-    this.svg.points.querySelectorAll("circle.show").forEach(p => p.classList.remove("show"));
+    this.svg.meshes.querySelectorAll("path.show").forEach((p) => p.classList.remove("show"));
+    this.svg.points.querySelectorAll("circle.show").forEach((p) => p.classList.remove("show"));
     this.svg.meshes.querySelector(`path[group="${group}"][point="${point}"]`).classList.add("show");
-    console.log(this.svg.points.querySelectorAll(`g[group="${group}"] circle:nth-of-type(${point})`))
-    this.svg.points.querySelectorAll(`g[group="${group}"] circle:nth-of-type(${point + 1})`).forEach(p => p.classList.add("show"));
+    this.svg.points.querySelectorAll(`g[group="${group}"] circle:nth-of-type(${point + 1})`).forEach((p) => p.classList.add("show"));
   }
   setDuration(dur) {
     this.duration = dur;
@@ -342,8 +341,8 @@ ${this.animation()}
   }
   animate(start) {
     this.svg.animate.innerHTML = start ? this.animation() : "";
-    this.svg.layers.style.display = start ? 'none' : '';
-    this.svg.points.style.display = start ? 'none' : '';
+    this.svg.layers.style.display = start ? "none" : "";
+    this.svg.points.style.display = start ? "none" : "";
   }
   pointCount(group) {
     return this.layer[0][group].length;
@@ -409,12 +408,25 @@ ${this.animation()}
     this.svg.points.querySelector(`g[layer="${this.curlayer}"]`).outerHTML = this.drawPoint(this.curlayer);
     this.svg.layers.querySelector(`path[layer="${this.curlayer}"]`).outerHTML = this.drawLayer(this.curlayer);
   }
-  movePoint(group, index, x, y) {
+  movePoint(group, index, x, y, align) {
     let point = { x: Math.max(0, x), y: Math.max(0, y) };
     this.layer[this.curlayer][group][index] = point;
     this.save(false);
     this.svg.layers.querySelector(`path[layer="${this.curlayer}"]`).outerHTML = this.drawLayer(this.curlayer);
     this.svg.meshes.querySelector(`path[group="${group}"][point="${index}"]`).outerHTML = this.drawMesh(group, index);
     this.showMeshPoint(group, index);
+    if(align && (this.curlayer == this.layer.length - 1 || this.curlayer == 0)) {
+      this.equalizePoints(group, index);
+    }
+  }
+  equalizePoints(group, index) {
+    let stepX = (this.layer[0][group][index].x - this.layer[this.layer.length - 1][group][index].x) / (this.layer.length - 1) ,
+    stepY = (this.layer[0][group][index].y - this.layer[this.layer.length - 1][group][index].y) / (this.layer.length - 1) ;
+    this.layer.forEach((l,layer) => {
+      this.layer[layer][group][index].x = this.layer[0][group][index].x - (stepX * layer);
+      this.layer[layer][group][index].y = this.layer[0][group][index].y - (stepY * layer);
+    }) 
+  this.drawSvg();
+  this.showMeshPoint(group,index)
   }
 }

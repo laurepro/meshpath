@@ -151,17 +151,19 @@ window.addEventListener("load", (le) => {
   };
   project.svg.svg.addEventListener("mousedown", (md) => {
     if (md.target.tagName == "circle") {
-      let index = [...md.target.parentNode.children].indexOf(md.target);
-      let group = md.target.parentNode.getAttribute("group");
+      let index = [...md.target.parentNode.children].indexOf(md.target),
+        group = md.target.parentNode.getAttribute("group"),
+        layer = md.target.parentNode.parentNode.getAttribute("layer"),
+        keys = (md.shiftKey ? "S" : "") + (md.ctrlKey ? "C" : "") + (md.altKey ? "A" : "");
       project.showMeshPoint(group, index);
-      if (md.shiftKey) {
+      if (keys == 'S') {
         if (index == 0 || index == project.pointCount(group) - 1) {
           action.trace = index == 0 ? -1 : 1;
           action.group = group;
+        } else {
+          project.addPoint(group, index);
         }
-      } else if (md.ctrlKey) {
-        project.addPoint(group, index);
-      } else if (md.altKey) {
+      } else if (keys == 'SA') {
         project.removePoint(group, index);
       } else {
         interface.activateLayer(md.target.parentNode.parentNode.getAttribute("layer"));
@@ -203,7 +205,7 @@ window.addEventListener("load", (le) => {
         if (y > project.heignt - 10) x = project.height;
         action.move.setAttribute("cx", x);
         action.move.setAttribute("cy", y);
-        project.movePoint(g, index, x, y);
+        project.movePoint(g, index, x, y, me.ctrlKey);
       }
     }
   });
