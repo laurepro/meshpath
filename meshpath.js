@@ -90,7 +90,7 @@ window.addEventListener("load", (le) => {
   interface.tools.addEventListener("click", (ce) => {
     if (ce.target.tagName == "INPUT") {
       if (ce.target.name == "mesh") {
-        project.activateMesh(ce.target.checked);
+        project.showMesh(ce.target.checked);
       } else if (ce.target.name == "close") {
         project.closePath(ce.target.checked);
       }
@@ -152,21 +152,20 @@ window.addEventListener("load", (le) => {
   project.svg.svg.addEventListener("mousedown", (md) => {
     if (md.target.tagName == "circle") {
       let index = [...md.target.parentNode.children].indexOf(md.target);
+      let group = md.target.parentNode.getAttribute("group");
+      project.showMeshPoint(group, index);
       if (md.shiftKey) {
-        let group = md.target.parentNode.getAttribute("group");
         if (index == 0 || index == project.pointCount(group) - 1) {
           action.trace = index == 0 ? -1 : 1;
           action.group = group;
         }
       } else if (md.ctrlKey) {
-        let g = md.target.parentNode.getAttribute("group");
-        project.addPoint(g, index);
+        project.addPoint(group, index);
       } else if (md.altKey) {
-        let g = md.target.parentNode.getAttribute("group");
-        project.removePoint(g, index);
+        project.removePoint(group, index);
       } else {
         interface.activateLayer(md.target.parentNode.parentNode.getAttribute("layer"));
-        interface.activateGroup(md.target.parentNode.getAttribute("group"));
+        interface.activateGroup(group);
         action.move = md.target;
       }
     } else if (project.curGroupEmpty()) {
@@ -219,7 +218,7 @@ window.addEventListener("load", (le) => {
       if (Math.abs(we.deltaY) > 50) {
         scale -= we.deltaY / 1000;
       } else {
-        scale += we.deltaY / 10;
+        scale += we.deltaY / 100;
       }
       scale = Math.max(scale, window.innerHeight / project.getHeight());
 

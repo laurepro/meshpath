@@ -17,13 +17,14 @@ body>section#svg {
     text-align: center;
 }
 
-body>section#svg>svg>g#meshes {
+body>section#svg>svg>g#meshes>path {
     display: none;
+    stroke: yellowgreen;
 }
 
-body>section#svg>svg>g#meshes>path {
-    stroke: yellowgreen;
-    stroke-width: 0.75px;
+body>section#svg>svg>g#meshes>path.show,
+body>section#svg>svg>g#meshes.show>path {
+    display: initial;
 }
 
 body>section#svg>svg>g#meshes>path.active {
@@ -33,37 +34,32 @@ body>section#svg>svg>g#meshes>path.active {
 body>section#svg>svg>g#layers>path {
     fill: none;
     stroke: black;
-    stroke-width: 1px;
 }
 
 body>section#svg>svg>g#layers>path.active {
     stroke: orangered;
-    stroke-width: 1.5px;
 }
 
-body>section#svg>svg>g#hooks>g circle {
+body>section#svg>svg>g#points>g circle {
     fill: none;
     stroke: black;
-    stroke-width: 0.75px;
 }
 
-body>section#svg>svg>g#hooks>g circle {
+body>section#svg>svg>g#points>g circle {
     fill: lawngreen;
     stroke: transparent;
-    stroke-width: 1px;
 }
 
 
-body>section#svg>svg>g#hooks>g.active circle {
+body>section#svg>svg>g#points>g.active circle {
     stroke: red;
-    stroke-width: 1px;
 }
 
-body>section#svg>svg>g#hooks>g>g.active circle {
+body>section#svg>svg>g#points>g>g.active circle {
     fill: blue;
 }
-
-body>section#svg>svg>g#hooks>g.active circle:hover {
+body>section#svg>svg>g#points>g>g circle.show,
+body>section#svg>svg>g#points>g.active circle:hover {
     fill: red;
 }
 
