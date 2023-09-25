@@ -155,21 +155,24 @@ window.addEventListener("load", (le) => {
         group = md.target.parentNode.getAttribute("group"),
         layer = md.target.parentNode.parentNode.getAttribute("layer"),
         keys = (md.shiftKey ? "S" : "") + (md.ctrlKey ? "C" : "") + (md.altKey ? "A" : "");
-      project.showMeshPoint(group, index);
-      if (keys == 'S') {
+      if (keys == "S") {
         if (index == 0 || index == project.pointCount(group) - 1) {
           action.trace = index == 0 ? -1 : 1;
           action.group = group;
         } else {
           project.addPoint(group, index);
         }
-      } else if (keys == 'SA') {
+      } else if (keys == "SA") {
         project.removePoint(group, index);
       } else {
-        interface.activateLayer(md.target.parentNode.parentNode.getAttribute("layer"));
+        interface.activateLayer(layer);
         interface.activateGroup(group);
+        if (md.ctrlKey) {
+          project.equalizePoints(group, index);
+        }
         action.move = md.target;
       }
+      project.showMeshPoint(group, index);
     } else if (project.curGroupEmpty()) {
       action.trace = true;
       action.group = false;
