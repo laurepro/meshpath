@@ -167,9 +167,6 @@ window.addEventListener("load", (le) => {
       } else {
         interface.activateLayer(layer);
         interface.activateGroup(group);
-        if (md.ctrlKey) {
-          project.equalizePoints(group, index);
-        }
         action.move = md.target;
       }
       project.showMeshPoint(group, index);

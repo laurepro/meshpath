@@ -335,8 +335,8 @@ ${this.animation()}
             repeatCount="indefinite" 
             attributeName="d" 
             values="${Array.from(layers.querySelectorAll("path"))
-              .map((p) => p.getAttribute("d").trim() || "M 0,0")
-              .join("; ")}" />
+        .map((p) => p.getAttribute("d").trim() || "M 0,0")
+        .join("; ")}" />
     </path>`;
   }
   animate(start) {
@@ -415,29 +415,36 @@ ${this.animation()}
     this.svg.layers.querySelector(`path[layer="${this.curlayer}"]`).outerHTML = this.drawLayer(this.curlayer);
     this.svg.meshes.querySelector(`path[group="${group}"][point="${index}"]`).outerHTML = this.drawMesh(group, index);
     if (align) {
-      this.equalizePoints(group, index);
+      this.alignPoints(group, index);
     }
     this.showMeshPoint(group, index);
   }
-  equalizePoints(group, index) {
+  alignPoints(group, index) {
+    this.equalizePoints(0, this.curlayer, group, index)
+    this.equalizePoints(this.curlayer, this.layer.length - 1, group, index)
     // if (this.curlayer == this.layer.length - 1 || this.curlayer == 0) {
-    //   let stepX = (this.layer[0][group][index].x - this.layer[this.layer.length - 1][group][index].x) / (this.layer.length - 1),
-    //     stepY = (this.layer[0][group][index].y - this.layer[this.layer.length - 1][group][index].y) / (this.layer.length - 1);
-    //   this.layer.forEach((l, layer) => {
-    //     this.layer[layer][group][index].x = this.layer[0][group][index].x - stepX * layer;
-    //     this.layer[layer][group][index].y = this.layer[0][group][index].y - stepY * layer;
-    //   });
-    //   this.drawSvg();
-    // }
-    let stepXU = this.curLayer == this.layer.length - 1 ? 0 : (this.layer[this.curlayer][group][index].x - this.layer[this.layer.length - 1][group][index].x) / (this.curlayer - this.layer.length),
-      stepYU = this.curLayer == this.layer.length - 1 ? 0 : (this.layer[this.curlayer][group][index].y - this.layer[this.layer.length - 1][group][index].y) / (this.curlayer - this.layer.length),
-      stepXD = this.curLayer == 0 ? 0 :(this.layer[0][group][index].x - this.layer[this.curlayer][group][index].x, 1) / this.curlayer,
-      stepYD = this.curLayer == 0 ? 0 : (this.layer[0][group][index].y - this.layer[this.curlayer][group][index].y, 1) /this.curlayer;
-    console.log(this.curlayer, stepXU, stepYU, stepXD, stepYD);
-    this.layer.forEach((l, layer) => {
-      this.layer[layer][group][index].x = this.layer[0][group][index].x - (layer > this.curlayer ? stepXU : stepXD) * layer;
-      this.layer[layer][group][index].y = this.layer[0][group][index].y - (layer > this.curlayer ? stepYU : stepYD) * layer;
-    });
+    // let stepX = (this.layer[0][group][index].x - this.layer[this.curlayer][group][index].x) / (this.curlayer),
+    //   stepY = (this.layer[0][group][index].y - this.layer[this.curlayer][group][index].y) / (this.curlayer);
+    // for (var layer = 0; layer < this.curlayer; layer++) {
+    //   this.layer[layer][group][index].x = this.layer[0][group][index].x - stepX * layer;
+    //   this.layer[layer][group][index].y = this.layer[0][group][index].y - stepY * layer;
+    // };
+    // stepX = (this.layer[this.curlayer][group][index].x - this.layer[this.layer.length - 1][group][index].x) / (this.layer.length - 1 - this.curlayer);
+    // stepY = (this.layer[this.curlayer][group][index].y - this.layer[this.layer.length - 1][group][index].y) / (this.layer.length - 1 - this.curlayer);
+    // for (var layer = this.curlayer; layer < this.layer.length - 1; layer++) {
+    //   this.layer[layer][group][index].x = this.layer[this.curlayer][group][index].x - stepX * layer;
+    //   this.layer[layer][group][index].y = this.layer[this.curlayer][group][index].y - stepY * layer;
+    // };
     this.drawSvg();
+    // }
+  }
+  equalizePoints(first, last, group, index) {
+    console.log(first,last,group,index);
+    let stepX = (this.layer[first][group][index].x - this.layer[last][group][index].x) / last - first,
+      stepY = (this.layer[first][group][index].y - this.layer[last][group][index].y) / last - first;
+    for (var layer = first; layer < last; layer++) {
+      this.layer[layer][group][index].x = this.layer[first][group][index].x - stepX * layer;
+      this.layer[layer][group][index].y = this.layer[first][group][index].y - stepY * layer;
+    };
   }
 }
