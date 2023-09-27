@@ -164,6 +164,8 @@ window.addEventListener("load", (le) => {
         }
       } else if (keys == "SA") {
         project.removePoint(group, index);
+      } else if (keys == "A") {
+        project.equalizePoints(group, index);
       } else {
         interface.activateLayer(layer);
         interface.activateGroup(group);
