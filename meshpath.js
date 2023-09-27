@@ -197,7 +197,7 @@ window.addEventListener("load", (le) => {
         project.tracePoint(group, action.trace, x, y);
       } else if (action.move !== false) {
         let group = action.move.parentNode;
-        let g = group.getAttribute("group");
+        let g = parseInt(group.getAttribute("group"));
         let index = [...group.children].indexOf(action.move);
         if (x < 10) x = 0;
         if (y < 10) y = 0;

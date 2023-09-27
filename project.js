@@ -422,29 +422,15 @@ ${this.animation()}
   alignPoints(group, index) {
     this.equalizePoints(0, this.curlayer, group, index)
     this.equalizePoints(this.curlayer, this.layer.length - 1, group, index)
-    // if (this.curlayer == this.layer.length - 1 || this.curlayer == 0) {
-    // let stepX = (this.layer[0][group][index].x - this.layer[this.curlayer][group][index].x) / (this.curlayer),
-    //   stepY = (this.layer[0][group][index].y - this.layer[this.curlayer][group][index].y) / (this.curlayer);
-    // for (var layer = 0; layer < this.curlayer; layer++) {
-    //   this.layer[layer][group][index].x = this.layer[0][group][index].x - stepX * layer;
-    //   this.layer[layer][group][index].y = this.layer[0][group][index].y - stepY * layer;
-    // };
-    // stepX = (this.layer[this.curlayer][group][index].x - this.layer[this.layer.length - 1][group][index].x) / (this.layer.length - 1 - this.curlayer);
-    // stepY = (this.layer[this.curlayer][group][index].y - this.layer[this.layer.length - 1][group][index].y) / (this.layer.length - 1 - this.curlayer);
-    // for (var layer = this.curlayer; layer < this.layer.length - 1; layer++) {
-    //   this.layer[layer][group][index].x = this.layer[this.curlayer][group][index].x - stepX * layer;
-    //   this.layer[layer][group][index].y = this.layer[this.curlayer][group][index].y - stepY * layer;
-    // };
     this.drawSvg();
-    // }
   }
   equalizePoints(first, last, group, index) {
-    console.log(first,last,group,index);
-    let stepX = (this.layer[first][group][index].x - this.layer[last][group][index].x) / last - first,
-      stepY = (this.layer[first][group][index].y - this.layer[last][group][index].y) / last - first;
-    for (var layer = first; layer < last; layer++) {
-      this.layer[layer][group][index].x = this.layer[first][group][index].x - stepX * layer;
-      this.layer[layer][group][index].y = this.layer[first][group][index].y - stepY * layer;
+    let howmutch = last - first;
+    let stepX = (this.layer[first][group][index].x - this.layer[last][group][index].x) / howmutch,
+      stepY = (this.layer[first][group][index].y - this.layer[last][group][index].y) / howmutch;
+    for (var layer = 0; layer < howmutch; layer++) {
+      this.layer[layer + first][group][index].x = this.layer[first][group][index].x - stepX * layer;
+      this.layer[layer + first][group][index].y = this.layer[first][group][index].y - stepY * layer;
     };
   }
 }
