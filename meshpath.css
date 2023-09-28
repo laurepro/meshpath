@@ -63,6 +63,11 @@ body>section#svg>svg>g#points>g.active circle:hover {
     fill: red;
 }
 
+body>section#debug {
+    position:absolute;
+    top:100px;
+}
+
 body>div.hidden {
     display: none;
 }

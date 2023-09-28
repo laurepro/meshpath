@@ -335,8 +335,8 @@ ${this.animation()}
             repeatCount="indefinite" 
             attributeName="d" 
             values="${Array.from(layers.querySelectorAll("path"))
-              .map((p) => p.getAttribute("d").trim() || "M 0,0")
-              .join("; ")}" />
+        .map((p) => p.getAttribute("d").trim() || "M 0,0")
+        .join("; ")}" />
     </path>`;
   }
   animate(start) {
@@ -410,51 +410,35 @@ ${this.animation()}
   }
   movePoint(group, index, x, y, elastic) {
     let point = { x: Math.max(0, x), y: Math.max(0, y) };
-    if (elastic) {
-      this.elasticMove(group, index, point);
-    }
     this.layer[this.curlayer][group][index] = point;
+    if (elastic) {
+      this.elasticMove(group, index);
+    }
     this.svg.layers.querySelector(`path[layer="${this.curlayer}"]`).outerHTML = this.drawLayer(this.curlayer);
     this.svg.meshes.querySelector(`path[group="${group}"][point="${index}"]`).outerHTML = this.drawMesh(group, index);
-    this.showMeshPoint(group, index);
     this.save(false);
-  }
-  elasticMove(group, index, point) {
-    this.elasticPoints(group, index, point, true);
-    // this.elasticPoints(group, index, point, false);
     this.drawSvg();
+    this.showMeshPoint(group, index);
   }
-  elasticPoints(group, index, point, fromStart) {
-    // let howmutch = last - first;
-    let indexes = Array.from(this.layer.keys()).slice(fromStart ? 0 : this.curlayer, fromStart ? this.curlayer + 1 : this.layer.length);
-    if (fromStart) {
-      indexes.reverse();
-    }
-    console.log(indexes)
-    if (indexes.length > 2) {
-      let start = indexes.shift(),
-        end = indexes.pop(),
-        deltaX = point.x - this.layer[start][group][index].x,
-        deltaY = point.y - this.layer[start][group][index].y,
-        distX = this.layer[start][group][index].x - this.layer[end][group][index].x,
-        distY = this.layer[start][group][index].y - this.layer[end][group][index].y,
-        ratioX = deltaX / distX,
-        ratioY = deltaY / distY;
-      console.log(deltaX, distX, ratioX);
-      indexes.forEach((layer, l) => {
-        this.layer[layer][group][index].x += Number.isFinite(ratioX) ? (this.layer[layer][group][index].x - this.layer[end][group][index].x) * ratioX : 0;
-        this.layer[layer][group][index].y += Number.isFinite(ratioY) ? (this.layer[layer][group][index].y - this.layer[end][group][index].y) * ratioY : 0;
-      });
-    }
+  elasticMove(group, index) {
+    // this.equalizePoints(group, index, 0, this.curlayer);
+    this.equalizePoints(group, index, this.curlayer, this.layer.length - 1);
   }
-  equalizePoints(group, index) {
-    let stepX = (this.layer[0][group][index].x - this.layer[this.layer.length - 1][group][index].x) / (this.layer.length - 1),
-      stepY = (this.layer[0][group][index].y - this.layer[this.layer.length - 1][group][index].y) / (this.layer.length - 1);
-    this.layer.forEach((l, layer) => {
-      this.layer[layer][group][index].x = this.layer[0][group][index].x - stepX * layer;
-      this.layer[layer][group][index].y = this.layer[0][group][index].y - stepY * layer;
-    });
-    this.save(true);
-    this.drawSvg();
+  equalizePoints(group, index, start, end) {
+    if (arguments.length == 2) {
+      start = 0;
+      end = this.layer.length - 1;
+    }
+    console.log(start, end);
+    let stepX = (this.layer[start][group][index].x - this.layer[end][group][index].x) / (end - start),
+      stepY = (this.layer[start][group][index].y - this.layer[end][group][index].y) / (end - start);
+    for(var layer = start; layer < end; layer ++) {
+      this.layer[layer][group][index].x = this.layer[start][group][index].x - stepX * layer;
+      this.layer[layer][group][index].y = this.layer[start][group][index].y - stepY * layer;
+    };
+    if (arguments.length == 2) {
+      this.save(true);
+      this.drawSvg();
+    }
   }
 }
