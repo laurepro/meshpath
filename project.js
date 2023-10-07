@@ -335,8 +335,8 @@ ${this.animation()}
             repeatCount="indefinite" 
             attributeName="d" 
             values="${Array.from(layers.querySelectorAll("path"))
-        .map((p) => p.getAttribute("d").trim() || "M 0,0")
-        .join("; ")}" />
+              .map((p) => p.getAttribute("d").trim() || "M 0,0")
+              .join("; ")}" />
     </path>`;
   }
   animate(start) {
@@ -421,21 +421,23 @@ ${this.animation()}
     this.showMeshPoint(group, index);
   }
   elasticMove(group, index) {
-    // this.equalizePoints(group, index, 0, this.curlayer);
-    this.equalizePoints(group, index, this.curlayer, this.layer.length - 1);
+    this.equalizePoints(group, index, 0);
+    this.equalizePoints(group, index, this.layer.length - 1);
   }
-  equalizePoints(group, index, start, end) {
+  equalizePoints(group, index, hook) {
+    let moved = this.curlayer;
     if (arguments.length == 2) {
-      start = 0;
-      end = this.layer.length - 1;
+      hook = 0;
+      moved = this.layer.length - 1;
     }
-    console.log(start, end);
-    let stepX = (this.layer[start][group][index].x - this.layer[end][group][index].x) / (end - start),
-      stepY = (this.layer[start][group][index].y - this.layer[end][group][index].y) / (end - start);
-    for(var layer = start; layer < end; layer ++) {
-      this.layer[layer][group][index].x = this.layer[start][group][index].x - stepX * layer;
-      this.layer[layer][group][index].y = this.layer[start][group][index].y - stepY * layer;
-    };
+    let nbr = Math.abs(moved - hook),
+      way = Math.sign(moved - hook),
+      stepX = (this.layer[hook][group][index].x - this.layer[moved][group][index].x) / nbr,
+      stepY = (this.layer[hook][group][index].y - this.layer[moved][group][index].y) / nbr;
+    for (var i = 1; i < nbr; i++) {
+      this.layer[hook + (way * i)][group][index].x = this.layer[hook][group][index].x - stepX * i;
+      this.layer[hook + (way * i)][group][index].y = this.layer[hook][group][index].y - stepY * i;
+    }
     if (arguments.length == 2) {
       this.save(true);
       this.drawSvg();
