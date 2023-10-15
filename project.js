@@ -1,7 +1,7 @@
 class Project {
   constructor() {
     this.history = new History();
-    let init = `{"layer":[[[]]],"background":"","names":{"layer":["layer0"],"group":["group0"]},"width":${window.innerWidth},"height":${window.innerHeight},"close":false}`;
+    let init = `{"layer":[[[]]],"background":"","names":{"layer":["layer0"],"group":["group0"]},"lock":[],"width":${window.innerWidth},"height":${window.innerHeight},"close":false}`;
     this.load(localStorage.getItem("project") || init);
     this.save(true);
     this.svg = {
@@ -16,6 +16,7 @@ class Project {
     };
     this.curlayer = 0;
     this.curgroup = 0;
+    this.curpath = 0;
     this.duration = 5;
     this.decorate();
     this.drawSvg();
@@ -32,6 +33,7 @@ class Project {
     let load = JSON.parse(store);
     this.layer = load.layer;
     this.names = load.names;
+    this.lock = load.lock;
     this.background = load.background;
     this.width = load.width;
     this.height = load.height;
@@ -115,6 +117,7 @@ ${this.animation()}
     return JSON.stringify({
       layer: this.layer,
       names: this.names,
+      lock: this.lock,
       background: this.background,
       width: this.width,
       height: this.height,
@@ -171,6 +174,9 @@ ${this.animation()}
   getCurGroup() {
     return this.curgroup;
   }
+  getCurPath() {
+    return this.curpath;
+  }
   getLayer(layer) {
     return this.layer[layer];
   }
@@ -201,13 +207,13 @@ ${this.animation()}
     return `<path layer="${layer}" class="${layer == this.curlayer ? "active" : ""}" d="${this.layer[layer].map((group) => this.drawGroup(group)).join(" ")}" stroke-width="${0.75 / this.svg.scale}" fill="none"/>`;
   }
   drawGroup(group) {
-    return bezierPath(group.map((point) => [point.x, point.y])); // + (this.close ? ' Z' : '');
+    return bezierPath(group.map((point) => [point.x, point.y]));
   }
   drawPointAll() {
     this.svg.points.innerHTML = this.layer.map((l, layer) => this.drawPoint(layer)).join("");
   }
   drawPoint(layer) {
-    return `<g layer="${layer}" class="${layer == this.curlayer ? "active" : ""}">${this.layer[layer].map((group, g) => `<g group="${g}" class="${g == this.curgroup ? "active" : ""}" >${group.map((point) => `<circle cx="${point.x}" cy="${point.y}" r="${4 / this.svg.scale}" stroke-width="${0.75 / this.svg.scale}"/>`).join("")}</g>`).join("")}</g>`;
+    return `<g layer="${layer}" class="${layer == this.curlayer ? "active" : ""} ${this.lock.includes(layer) ? "locked" : ""}">${this.layer[layer].map((group, g) => `<g group="${g}" class="${g == this.curgroup ? "active" : ""}" >${group.map((point) => `<circle cx="${point.x}" cy="${point.y}" r="${4 / this.svg.scale}" stroke-width="${0.75 / this.svg.scale}"/>`).join("")}</g>`).join("")}</g>`;
   }
   drawMeshAll() {
     let mesh = [];
@@ -268,6 +274,21 @@ ${this.animation()}
     this.drawSvg();
     return this.curlayer;
   }
+  lockLayer() {
+    if (this.lock.includes(this.curlayer)) {
+      this.lock = this.lock.filter((item) => item != this.curlayer);
+    } else {
+      this.lock.push(this.curlayer);
+    }
+    this.save(true);
+    return this.lock.includes(this.curlayer);
+  }
+  islocked(layer) {
+    return this.lock.includes(layer);
+  }
+  isMovable() {
+    return !this.lock.includes(this.curlayer);
+  }
   addGroup() {
     const regex = new RegExp("[0-9]+");
     let numgroup = this.names.group.length;
@@ -307,6 +328,9 @@ ${this.animation()}
     let active = this.svg.points.querySelector(`g[layer="${l}"]`);
     active.classList.add("active");
     this.svg.points.appendChild(active);
+  }
+  activatePath(p) {
+    this.curpath = parseInt(p);
   }
   reverseGroup() {
     this.layer.forEach((l, layer) => {
@@ -408,11 +432,20 @@ ${this.animation()}
     this.svg.layers.querySelector(`path[layer="${this.curlayer}"]`).outerHTML = this.drawLayer(this.curlayer);
     this.save(false);
   }
-  movePoint(group, index, x, y, elastic) {
-    let point = { x: Math.max(0, x), y: Math.max(0, y) };
+  movePoint(group, index, x, y, mode) {
+    let point = { x: Math.max(0, x), y: Math.max(0, y) },
+      oldpoint = this.layer[this.curlayer][group][index];
     this.layer[this.curlayer][group][index] = point;
-    if (elastic) {
+    if (mode == "elastic") {
       this.elasticMove(group, index);
+    } else if (mode == "sameway") {
+      let delta = { x: point.x - oldpoint.x, y: point.y - oldpoint.y };
+      this.layer[this.curlayer][group].forEach((p, point) => {
+        if (index != point) {
+          this.layer[this.curlayer][group][point].x += delta.x;
+          this.layer[this.curlayer][group][point].y += delta.y;
+        }
+      });
     }
     this.svg.layers.querySelector(`path[layer="${this.curlayer}"]`).outerHTML = this.drawLayer(this.curlayer);
     this.svg.meshes.querySelector(`path[group="${group}"][point="${index}"]`).outerHTML = this.drawMesh(group, index);
@@ -421,8 +454,22 @@ ${this.animation()}
     this.showMeshPoint(group, index);
   }
   elasticMove(group, index) {
-    this.equalizePoints(group, index, 0);
-    this.equalizePoints(group, index, this.layer.length - 1);
+    let hook = 0;
+    for (var i = this.curlayer; i > hook; i--) {
+      if (this.lock.includes(i)) {
+        hook = i;
+        break;
+      }
+    }
+    this.equalizePoints(group, index, hook);
+    hook = this.layer.length - 1;
+    for (var i = this.curlayer; i < hook; i++) {
+      if (this.lock.includes(i)) {
+        hook = i;
+        break;
+      }
+    }
+    this.equalizePoints(group, index, hook);
   }
   equalizePoints(group, index, hook) {
     let moved = this.curlayer;
@@ -435,8 +482,8 @@ ${this.animation()}
       stepX = (this.layer[hook][group][index].x - this.layer[moved][group][index].x) / nbr,
       stepY = (this.layer[hook][group][index].y - this.layer[moved][group][index].y) / nbr;
     for (var i = 1; i < nbr; i++) {
-      this.layer[hook + (way * i)][group][index].x = this.layer[hook][group][index].x - stepX * i;
-      this.layer[hook + (way * i)][group][index].y = this.layer[hook][group][index].y - stepY * i;
+      this.layer[hook + way * i][group][index].x = this.layer[hook][group][index].x - stepX * i;
+      this.layer[hook + way * i][group][index].y = this.layer[hook][group][index].y - stepY * i;
     }
     if (arguments.length == 2) {
       this.save(true);

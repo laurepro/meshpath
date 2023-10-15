@@ -10,27 +10,40 @@
         <script type="text/javascript"  src="bezier.js"></script>
     </head>
     <body>
-        <div>
+        <nav>
             <label class="clear" title="Clear project"><div>New</div></label>
             <label class="open" title="Upload project or background"><input type="file" /><div>Open</div></label>
             <label class="save" title="Download project"><div>Save</div></label>
             <label class="undo" title="undo"><div>&cularr;</div></label>
             <label class="redo" title="redo"><div>&curarr;</div></label>
-            <label><div class="label">Layer</div></label>
-            <label class="select-editable"><select name="layers"></select><input type="text" name="layername"></label>
-            <label class="add layer" title="Add a layer"><div>+</div></label>
-            <label class="remove layer" title="Remove a layer"><div>&#128465;</div></label>
-            <label><div class="label">Group</div></label>
-            <label class="select-editable"><select name="groups"></select><input type="text" name="groupname"></label>
-            <label class="add group" title="Add a group"><div>+</div></label>
-            <label class="remove group" title="Remove a group"><div>&#128465;</div></label>
-            <label class="reverse" title="Reverse path group"><div>&#9775;</div></label>
-            <label class="close" title="Close all pathes"><input type="checkbox" name="close"><div>Close</div></label></label>
-            <label class="mesh" title="Show/hide mesh"><input type="checkbox" name="mesh"><div>Mesh</div></label></label>
+            <label class="close" title="Close all pathes"><input type="checkbox" name="close"><div>Close</div></label>
+            <label class="mesh" title="Show/hide mesh"><input type="checkbox" name="mesh"><div>Mesh</div></label>
             <label class="animate" title="Show animation"><div>Animate</div></label>
             <input type="range" name="speed" min="1" max="30" step="1" value="5" title="animation speed">
             <input type="range" name="bkg" min="0" max="1" step="0.1" value="1" title="background opacity">
-        </div>
+            <label class="path add" title="Add path"><div>&#149;+</div></label>
+            <label class="path remove" title="Remove path"><div>&#149;-</div></label>
+            <label class="mode" title="Trace layer"><input type="radio" name="mode" value="trace" checked><div>&#9998;&#65039;</div></label>
+            <label class="mode" title="Point move"><input type="radio" name="mode" value="move"><div>&#8596;</div></label>
+            <label class="mode" title="Path move"><input type="radio" name="mode" value="elastic"><div>&#8700;</div></label>
+            <label class="mode" title="Layer move"><input type="radio" name="mode" value="sameway"><div>&#8660;</div></label>
+        </nav>
+        <aside>
+            <input type="text" name="layername">
+            <select name="layers" size="10"></select>
+            <nav>
+                <button class="add layer" title="Add a layer">+</button>
+                <button class="remove layer" title="Remove a layer">&#128465;</button>
+                <button class="lock layer" title="Un/Lock a layer">&#128274;</button>
+            </nav>
+            <input type="text" name="groupname">
+            <select name="groups" size="10"></select>
+            <nav>
+                <button class="add group" title="Add a group">+</button>
+                <button class="remove group" title="Remove a group">&#128465;</button>
+                <button class="reverse" title="Reverse path group">&#9775;</button>
+            </nav>
+        </aside>
         <section id="debug"></section>
         <section id="svg">
             <svg xmlns="http://www.w3.org/2000/svg" version="1.1">
