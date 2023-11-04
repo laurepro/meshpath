@@ -14,6 +14,11 @@ class Project {
       image: document.querySelector("body>section#svg>svg>image#background"),
       animate: document.querySelector("body>section#svg>svg>g#animate"),
     };
+    this.curpoint = {
+      layer: null,
+      group: null,
+      path: null
+    }
     this.curlayer = 0;
     this.curgroup = 0;
     this.curpath = 0;
@@ -313,6 +318,11 @@ ${this.animation()}
     this.drawSvg();
     return this.curgroup;
   }
+  selectPoint(layer, group, path) {
+    this.curpoint.layer = parseInt(layer);
+    this.curpoint.group = parseInt(group);
+    this.curpoint.path = parseInt(path);
+  }
   activateGroup(g) {
     this.curgroup = parseInt(g);
     this.svg.points.querySelectorAll("g[group]").forEach((g) => g.classList.remove("active"));
@@ -377,7 +387,9 @@ ${this.animation()}
   layerCount() {
     return this.layer.length;
   }
-  addPoint(group, index) {
+  addPoint() {
+    let group = this.curgroup;
+    let index = this.curpath;
     this.layer.forEach((l, layer) => {
       let points = [this.layer[layer][group][index]];
       if (index > 0) {
@@ -397,7 +409,10 @@ ${this.animation()}
     this.save(true);
     this.drawSvg();
   }
-  removePoint(group, index) {
+  removePoint() {
+    let group = this.curgroup;
+    let index = this.curpath;
+    console.log(group, index)
     this.layer.forEach((l, layer) => {
       this.layer[layer][group] = this.layer[layer][group].slice(0, index).concat(this.layer[layer][group].slice(index + 1));
     });
@@ -436,8 +451,10 @@ ${this.animation()}
     let point = { x: Math.max(0, x), y: Math.max(0, y) },
       oldpoint = this.layer[this.curlayer][group][index];
     this.layer[this.curlayer][group][index] = point;
-    if (mode == "elastic") {
-      this.elasticMove(group, index);
+    if (mode == "equalize") {
+      this.equalizeMove(group, index);
+    } else if (mode == "elastic") {
+      this.elasticMove(group, index, oldpoint);
     } else if (mode == "sameway") {
       let delta = { x: point.x - oldpoint.x, y: point.y - oldpoint.y };
       this.layer[this.curlayer][group].forEach((p, point) => {
@@ -453,7 +470,7 @@ ${this.animation()}
     this.drawSvg();
     this.showMeshPoint(group, index);
   }
-  elasticMove(group, index) {
+  equalizeMove(group, index) {
     let hook = 0;
     for (var i = this.curlayer; i > hook; i--) {
       if (this.lock.includes(i)) {
@@ -489,5 +506,44 @@ ${this.animation()}
       this.save(true);
       this.drawSvg();
     }
+  }
+  elasticMove(group, index, oldpoint) {
+    let hook = 0;
+    for (var i = this.curlayer; i > hook; i--) {
+      if (this.lock.includes(i)) {
+        hook = i;
+        break;
+      }
+    }
+    this.elasticPoints(group, index, hook, oldpoint);
+    // hook = this.layer.length - 1;
+    // for (var i = this.curlayer; i < hook; i++) {
+    //   if (this.lock.includes(i)) {
+    //     hook = i;
+    //     break;
+    //   }
+    // }
+    // this.elasticPoints(group, index, hook);
+  }
+  elasticPoints(group, index, hook, oldpoint) {
+    let hookpoint = this.layer[hook][group][index],
+      movepoint = this.layer[this.curlayer][group][index],
+      angle = this.angle(movepoint, hookpoint),
+      distance = this.distance(movepoint, hookpoint),
+      angleold = this.angle(oldpoint, hookpoint),
+      distanceold = this.distance(oldpoint, hookpoint),
+      coordold = {
+        x: Math.sin(angleold) * distanceold +hookpoint.x,
+        y: Math.cos(angleold) * distanceold + hookpoint.y
+      }
+
+    console.log(oldpoint, coordold);
+  }
+
+  distance(a, b) {
+    return Math.sqrt(Math.pow(b.y - a.y, 2) + Math.pow(b.x - a.x, 2));
+  }
+  angle(c, e) {
+    return (Math.atan2(c.x - e.x, e.y - c.y) * 180) / Math.PI;
   }
 }

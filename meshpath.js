@@ -147,9 +147,10 @@ window.addEventListener("load", (le) => {
     project.animate(true);
   });
   interface.tools.querySelector("label.path").addEventListener("click", (ce) => {
-    if (ce.target.classList.includes("add")) {
+    if (ce.target.parentElement.classList.contains("add")) {
       project.addPoint();
-    } else if (ce.target.classList.includes("remove")) {
+    } else if (ce.target.parentElement.classList.contains("remove")) {
+      console.log('ici')
       project.removePoint();
     }
   });
