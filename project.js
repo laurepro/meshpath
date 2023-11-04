@@ -17,8 +17,8 @@ class Project {
     this.curpoint = {
       step: 0,
       group: 0,
-      path: 0
-    }
+      path: 0,
+    };
     this.duration = 5;
     this.decorate();
     this.drawSvg();
@@ -409,7 +409,7 @@ ${this.animation()}
   removePath() {
     let group = this.curpoint.group;
     let index = this.curpoint.path;
-    console.log(group, index)
+    console.log(group, index);
     this.step.forEach((l, step) => {
       this.step[step][group] = this.step[step][group].slice(0, index).concat(this.step[step][group].slice(index + 1));
     });
@@ -528,19 +528,21 @@ ${this.animation()}
       angle = this.angle(movepoint, hookpoint),
       distance = this.distance(movepoint, hookpoint),
       angleold = this.angle(oldpoint, hookpoint),
-      distanceold = this.distance(oldpoint, hookpoint),
-      coordold = {
-        x: Math.sin(angleold) * distanceold +hookpoint.x,
-        y: Math.cos(angleold) * distanceold + hookpoint.y
-      }
-
-    console.log(oldpoint, coordold);
+      distanceold = this.distance(oldpoint, hookpoint);
+    console.log(oldpoint, this.coordinates(hookpoint, angleold, distanceold));
   }
 
   distance(a, b) {
     return Math.sqrt(Math.pow(b.y - a.y, 2) + Math.pow(b.x - a.x, 2));
   }
-  angle(c, e) {
-    return (Math.atan2(c.x - e.x, e.y - c.y) * 180) / Math.PI;
+  angle(origine, destination) {
+    return Math.atan2(origine.x - destination.x, destination.y - origine.y); // radian
+    // return (Math.atan2(origine.x - destination.x, destination.y - origine.y) * 180) / Math.PI; // degree
+  }
+  coordinates(origine, angle, distance) {
+    return {
+      x: Math.floor(Math.sin(angle) * distance + origine.x),
+      y: Math.floor(0 - (Math.cos(angle) * distance - origine.y))
+    };
   }
 }
