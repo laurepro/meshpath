@@ -31,12 +31,12 @@ body>section#svg>svg>g#meshes>path.active {
     stroke: blueviolet;
 }
 
-body>section#svg>svg>g#layers>path {
+body>section#svg>svg>g#steps>path {
     fill: none;
     stroke: black;
 }
 
-body>section#svg>svg>g#layers>path.active {
+body>section#svg>svg>g#steps>path.active {
     stroke: orangered;
 }
 
@@ -193,10 +193,10 @@ body>aside button {
     font-weight: bold;
 }
 
-select[name="layers"] option::before {
+select[name="steps"] option::before {
     content: "    "
 }
 
-select[name="layers"] option.locked::before {
+select[name="steps"] option.locked::before {
     content: "🔒"
 }

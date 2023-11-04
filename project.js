@@ -1,25 +1,25 @@
 class Project {
   constructor() {
     this.history = new History();
-    let init = `{"layer":[[[]]],"background":"","names":{"layer":["layer0"],"group":["group0"]},"lock":[],"width":${window.innerWidth},"height":${window.innerHeight},"close":false}`;
+    let init = `{"step":[[[]]],"background":"","names":{"step":["step0"],"group":["group0"]},"lock":[],"width":${window.innerWidth},"height":${window.innerHeight},"close":false}`;
     this.load(localStorage.getItem("project") || init);
     this.save(true);
     this.svg = {
       scale: 1,
       container: document.querySelector("body>section#svg"),
       svg: document.querySelector("body>section#svg>svg"),
-      layers: document.querySelector("body>section#svg>svg>g#layers"),
+      steps: document.querySelector("body>section#svg>svg>g#steps"),
       points: document.querySelector("body>section#svg>svg>g#points"),
       meshes: document.querySelector("body>section#svg>svg>g#meshes"),
       image: document.querySelector("body>section#svg>svg>image#background"),
       animate: document.querySelector("body>section#svg>svg>g#animate"),
     };
     this.curpoint = {
-      layer: null,
+      step: null,
       group: null,
       path: null
     }
-    this.curlayer = 0;
+    this.curstep = 0;
     this.curgroup = 0;
     this.curpath = 0;
     this.duration = 5;
@@ -36,7 +36,7 @@ class Project {
   }
   load(store) {
     let load = JSON.parse(store);
-    this.layer = load.layer;
+    this.step = load.step;
     this.names = load.names;
     this.lock = load.lock;
     this.background = load.background;
@@ -50,7 +50,7 @@ class Project {
         `<?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <!-- Created with MeshPath (http://meshpath.laurepro.fr/) -->
 <svg xmlns="http://www.w3.org/2000/svg" width="${this.width}" height="${this.height}" viewBox="0 0 ${this.width} ${this.height}">
-<meshpath layers="${btoa(JSON.stringify(this.layer))}" names="${btoa(JSON.stringify(this.names))}" />
+<meshpath steps="${btoa(JSON.stringify(this.step))}" names="${btoa(JSON.stringify(this.names))}" />
 ${this.svg.image.outerHTML}
 ${this.animation()}
 </svg>`,
@@ -83,12 +83,12 @@ ${this.animation()}
           that.viewBox = root.getAttribute("viewBox");
           let meshpath = svg.querySelector("meshpath");
           if (meshpath) {
-            let layer = JSON.parse(atob(meshpath.getAttribute("layers")));
+            let step = JSON.parse(atob(meshpath.getAttribute("steps")));
             let names = JSON.parse(atob(meshpath.getAttribute("names")));
-            that.layer.length = 0;
-            layer.forEach((l) => that.layer.push(l));
-            that.names.layer.length = 0;
-            names.layer.forEach((ln) => that.names.layer.push(ln));
+            that.step.length = 0;
+            step.forEach((l) => that.step.push(l));
+            that.names.step.length = 0;
+            names.step.forEach((ln) => that.names.step.push(ln));
             that.names.group.length = 0;
             names.group.forEach((gn) => that.names.group.push(gn));
           }
@@ -120,7 +120,7 @@ ${this.animation()}
   }
   stringify() {
     return JSON.stringify({
-      layer: this.layer,
+      step: this.step,
       names: this.names,
       lock: this.lock,
       background: this.background,
@@ -173,8 +173,8 @@ ${this.animation()}
     this.svg.svg.style.width = this.width * value + "px";
     this.drawSvg();
   }
-  getCurLayer() {
-    return this.curlayer;
+  getCurStep() {
+    return this.curstep;
   }
   getCurGroup() {
     return this.curgroup;
@@ -182,20 +182,20 @@ ${this.animation()}
   getCurPath() {
     return this.curpath;
   }
-  getLayer(layer) {
-    return this.layer[layer];
+  getStep(step) {
+    return this.step[step];
   }
-  getGroup(layer, group) {
-    return this.layer[layer][group];
+  getGroup(step, group) {
+    return this.step[step][group];
   }
-  getLayerName(layer) {
-    return this.names.layer[layer];
+  getStepName(step) {
+    return this.names.step[step];
   }
   getGroupName(group) {
     return this.names.group[group];
   }
-  setLayerName(name) {
-    this.names.layer[this.curlayer] = name;
+  setStepName(name) {
+    this.names.step[this.curstep] = name;
     this.save(true);
   }
   setGroupName(name) {
@@ -203,27 +203,27 @@ ${this.animation()}
     this.save(true);
   }
   curGroupEmpty() {
-    return this.layer[this.curlayer][this.curgroup].length == 0;
+    return this.step[this.curstep][this.curgroup].length == 0;
   }
-  drawLayerAll() {
-    this.svg.layers.innerHTML = this.layer.map((l, layer) => this.drawLayer(layer)).join("");
+  drawStepAll() {
+    this.svg.steps.innerHTML = this.step.map((l, step) => this.drawStep(step)).join("");
   }
-  drawLayer(layer) {
-    return `<path layer="${layer}" class="${layer == this.curlayer ? "active" : ""}" d="${this.layer[layer].map((group) => this.drawGroup(group)).join(" ")}" stroke-width="${0.75 / this.svg.scale}" fill="none"/>`;
+  drawStep(step) {
+    return `<path step="${step}" class="${step == this.curstep ? "active" : ""}" d="${this.step[step].map((group) => this.drawGroup(group)).join(" ")}" stroke-width="${0.75 / this.svg.scale}" fill="none"/>`;
   }
   drawGroup(group) {
     return bezierPath(group.map((point) => [point.x, point.y]));
   }
   drawPointAll() {
-    this.svg.points.innerHTML = this.layer.map((l, layer) => this.drawPoint(layer)).join("");
+    this.svg.points.innerHTML = this.step.map((l, step) => this.drawPoint(step)).join("");
   }
-  drawPoint(layer) {
-    return `<g layer="${layer}" class="${layer == this.curlayer ? "active" : ""} ${this.lock.includes(layer) ? "locked" : ""}">${this.layer[layer].map((group, g) => `<g group="${g}" class="${g == this.curgroup ? "active" : ""}" >${group.map((point) => `<circle cx="${point.x}" cy="${point.y}" r="${4 / this.svg.scale}" stroke-width="${0.75 / this.svg.scale}"/>`).join("")}</g>`).join("")}</g>`;
+  drawPoint(step) {
+    return `<g step="${step}" class="${step == this.curstep ? "active" : ""} ${this.lock.includes(step) ? "locked" : ""}">${this.step[step].map((group, g) => `<g group="${g}" class="${g == this.curgroup ? "active" : ""}" >${group.map((point) => `<circle cx="${point.x}" cy="${point.y}" r="${4 / this.svg.scale}" stroke-width="${0.75 / this.svg.scale}"/>`).join("")}</g>`).join("")}</g>`;
   }
   drawMeshAll() {
     let mesh = [];
-    this.layer[0].forEach((v, group) => {
-      this.layer[0][group].forEach((v, point) => {
+    this.step[0].forEach((v, group) => {
+      this.step[0][group].forEach((v, point) => {
         mesh.push(this.drawMesh(group, point));
       });
     });
@@ -231,68 +231,68 @@ ${this.animation()}
   }
   drawMesh(group, point) {
     let path = [];
-    this.layer.forEach((l, layer) => {
-      path.push(this.layer[layer][group][point]);
+    this.step.forEach((l, step) => {
+      path.push(this.step[step][group][point]);
     });
     return `<path group="${group}" point="${point}" class="${group == this.curgroup ? "active" : ""}" d="${path.map((point, p) => `${p == 0 ? "M" : "L"} ${point.x},${point.y}`).join(" ")}"  stroke-width="${0.75 / this.svg.scale}" marker-end="url(#arrowhead)" fill="none"/>`;
   }
   drawSvg() {
-    this.drawLayerAll();
+    this.drawStepAll();
     this.drawPointAll();
     this.drawMeshAll();
   }
-  addLayer() {
+  addStep() {
     const regex = new RegExp("[0-9]+");
-    let numlayer = this.names.layer.length;
-    let maxlayer = 0;
-    this.names.layer.forEach((n) => (maxlayer = Math.max(maxlayer, parseInt((n.match(regex) || ["0"]).shift()))));
-    if (numlayer < maxlayer) {
-      numlayer = maxlayer + 1;
+    let numstep = this.names.step.length;
+    let maxstep = 0;
+    this.names.step.forEach((n) => (maxstep = Math.max(maxstep, parseInt((n.match(regex) || ["0"]).shift()))));
+    if (numstep < maxstep) {
+      numstep = maxstep + 1;
     }
-    let prev = this.curlayer;
+    let prev = this.curstep;
     let next = prev + 1;
-    if (next == this.layer.length) {
-      this.layer[next] = JSON.parse(JSON.stringify(this.layer[this.layer.length - 1]));
-      this.names.layer[next] = "layer" + numlayer;
+    if (next == this.step.length) {
+      this.step[next] = JSON.parse(JSON.stringify(this.step[this.step.length - 1]));
+      this.names.step[next] = "step" + numstep;
     } else {
-      let newLayer = [[]];
-      this.layer[prev].forEach((g, group) => {
-        newLayer[group] = [];
-        this.layer[prev][group].forEach((p, point) => {
-          newLayer[group][point] = {
-            x: this.layer[prev][group][point].x + (this.layer[next][group][point].x - this.layer[prev][group][point].x) / 2,
-            y: this.layer[prev][group][point].y + (this.layer[next][group][point].y - this.layer[prev][group][point].y) / 2,
+      let newStep = [[]];
+      this.step[prev].forEach((g, group) => {
+        newStep[group] = [];
+        this.step[prev][group].forEach((p, point) => {
+          newStep[group][point] = {
+            x: this.step[prev][group][point].x + (this.step[next][group][point].x - this.step[prev][group][point].x) / 2,
+            y: this.step[prev][group][point].y + (this.step[next][group][point].y - this.step[prev][group][point].y) / 2,
           };
         });
       });
-      this.layer.splice(next, 0, newLayer);
-      this.names.layer.splice(next, 0, "layer" + numlayer);
+      this.step.splice(next, 0, newStep);
+      this.names.step.splice(next, 0, "step" + numstep);
     }
     this.save(true);
     this.drawSvg();
     return next;
   }
-  removeLayer() {
-    this.layer.splice(this.curlayer, 1);
-    this.curlayer = Math.min(this.curlayer, this.layer.length - 1);
+  removeStep() {
+    this.step.splice(this.curstep, 1);
+    this.curstep = Math.min(this.curstep, this.step.length - 1);
     this.save(true);
     this.drawSvg();
-    return this.curlayer;
+    return this.curstep;
   }
-  lockLayer() {
-    if (this.lock.includes(this.curlayer)) {
-      this.lock = this.lock.filter((item) => item != this.curlayer);
+  lockStep() {
+    if (this.lock.includes(this.curstep)) {
+      this.lock = this.lock.filter((item) => item != this.curstep);
     } else {
-      this.lock.push(this.curlayer);
+      this.lock.push(this.curstep);
     }
     this.save(true);
-    return this.lock.includes(this.curlayer);
+    return this.lock.includes(this.curstep);
   }
-  islocked(layer) {
-    return this.lock.includes(layer);
+  islocked(step) {
+    return this.lock.includes(step);
   }
   isMovable() {
-    return !this.lock.includes(this.curlayer);
+    return !this.lock.includes(this.curstep);
   }
   addGroup() {
     const regex = new RegExp("[0-9]+");
@@ -302,24 +302,24 @@ ${this.animation()}
     if (numgroup < maxgroup) {
       numgroup = maxgroup + 1;
     }
-    this.layer.forEach((l, layer) => {
-      this.layer[layer].push([]);
+    this.step.forEach((l, step) => {
+      this.step[step].push([]);
     });
     this.names.group.push("group" + numgroup);
     this.save(true);
-    return this.layer[0].length - 1;
+    return this.step[0].length - 1;
   }
   removeGroup() {
-    this.layer.forEach((l, layer) => {
-      this.layer[layer].splice(this.curgroup, 1);
+    this.step.forEach((l, step) => {
+      this.step[step].splice(this.curgroup, 1);
     });
-    this.curgroup = Math.min(this.curgroup, this.layer[0].length - 1);
+    this.curgroup = Math.min(this.curgroup, this.step[0].length - 1);
     this.save(true);
     this.drawSvg();
     return this.curgroup;
   }
-  selectPoint(layer, group, path) {
-    this.curpoint.layer = parseInt(layer);
+  selectPoint(step, group, path) {
+    this.curpoint.step = parseInt(step);
     this.curpoint.group = parseInt(group);
     this.curpoint.path = parseInt(path);
   }
@@ -330,12 +330,12 @@ ${this.animation()}
     this.svg.meshes.querySelectorAll("path.active").forEach((g) => g.classList.remove("active"));
     this.svg.meshes.querySelectorAll(`path[group="${g}"]`).forEach((g) => g.classList.add("active"));
   }
-  activateLayer(l) {
-    this.curlayer = parseInt(l);
-    this.svg.layers.querySelectorAll("path.active").forEach((l) => l.classList.remove("active"));
-    this.svg.layers.querySelector(`path[layer="${l}"]`).classList.add("active");
-    this.svg.points.querySelectorAll("g[layer].active").forEach((g) => g.classList.remove("active"));
-    let active = this.svg.points.querySelector(`g[layer="${l}"]`);
+  activateStep(l) {
+    this.curstep = parseInt(l);
+    this.svg.steps.querySelectorAll("path.active").forEach((l) => l.classList.remove("active"));
+    this.svg.steps.querySelector(`path[step="${l}"]`).classList.add("active");
+    this.svg.points.querySelectorAll("g[step].active").forEach((g) => g.classList.remove("active"));
+    let active = this.svg.points.querySelector(`g[step="${l}"]`);
     active.classList.add("active");
     this.svg.points.appendChild(active);
   }
@@ -343,8 +343,8 @@ ${this.animation()}
     this.curpath = parseInt(p);
   }
   reverseGroup() {
-    this.layer.forEach((l, layer) => {
-      this.layer[layer][this.curgroup].reverse();
+    this.step.forEach((l, step) => {
+      this.step[step][this.curgroup].reverse();
     });
     this.save(true);
     this.drawSvg();
@@ -368,43 +368,43 @@ ${this.animation()}
             dur="${this.duration}s" 
             repeatCount="indefinite" 
             attributeName="d" 
-            values="${Array.from(layers.querySelectorAll("path"))
+            values="${Array.from(steps.querySelectorAll("path"))
               .map((p) => p.getAttribute("d").trim() || "M 0,0")
               .join("; ")}" />
     </path>`;
   }
   animate(start) {
     this.svg.animate.innerHTML = start ? this.animation() : "";
-    this.svg.layers.style.display = start ? "none" : "";
+    this.svg.steps.style.display = start ? "none" : "";
     this.svg.points.style.display = start ? "none" : "";
   }
   pointCount(group) {
-    return this.layer[0][group].length;
+    return this.step[0][group].length;
   }
   groupCount() {
-    return this.layer[0].length;
+    return this.step[0].length;
   }
-  layerCount() {
-    return this.layer.length;
+  stepCount() {
+    return this.step.length;
   }
   addPoint() {
     let group = this.curgroup;
     let index = this.curpath;
-    this.layer.forEach((l, layer) => {
-      let points = [this.layer[layer][group][index]];
+    this.step.forEach((l, step) => {
+      let points = [this.step[step][group][index]];
       if (index > 0) {
         points.unshift({
-          x: this.layer[layer][group][index].x - (this.layer[layer][group][index].x - this.layer[layer][group][index - 1].x) / 2,
-          y: this.layer[layer][group][index].y - (this.layer[layer][group][index].y - this.layer[layer][group][index - 1].y) / 2,
+          x: this.step[step][group][index].x - (this.step[step][group][index].x - this.step[step][group][index - 1].x) / 2,
+          y: this.step[step][group][index].y - (this.step[step][group][index].y - this.step[step][group][index - 1].y) / 2,
         });
       }
-      if (index < this.layer[layer][group].length - 1) {
+      if (index < this.step[step][group].length - 1) {
         points.push({
-          x: this.layer[layer][group][index].x + (this.layer[layer][group][index + 1].x - this.layer[layer][group][index].x) / 2,
-          y: this.layer[layer][group][index].y + (this.layer[layer][group][index + 1].y - this.layer[layer][group][index].y) / 2,
+          x: this.step[step][group][index].x + (this.step[step][group][index + 1].x - this.step[step][group][index].x) / 2,
+          y: this.step[step][group][index].y + (this.step[step][group][index + 1].y - this.step[step][group][index].y) / 2,
         });
       }
-      this.layer[layer][group] = this.layer[layer][group].slice(0, index).concat(points, this.layer[layer][group].slice(index + 1));
+      this.step[step][group] = this.step[step][group].slice(0, index).concat(points, this.step[step][group].slice(index + 1));
     });
     this.save(true);
     this.drawSvg();
@@ -413,20 +413,20 @@ ${this.animation()}
     let group = this.curgroup;
     let index = this.curpath;
     console.log(group, index)
-    this.layer.forEach((l, layer) => {
-      this.layer[layer][group] = this.layer[layer][group].slice(0, index).concat(this.layer[layer][group].slice(index + 1));
+    this.step.forEach((l, step) => {
+      this.step[step][group] = this.step[step][group].slice(0, index).concat(this.step[step][group].slice(index + 1));
     });
     this.save(true);
     this.drawSvg();
   }
-  applyPoint(layer, group, point) {
-    let source = this.layer[layer][group];
-    this.layer.forEach((l, cible) => {
-      if (cible != layer) {
+  applyPoint(step, group, point) {
+    let source = this.step[step][group];
+    this.step.forEach((l, cible) => {
+      if (cible != step) {
         if (point == 1) {
-          this.layer[cible][group] = this.layer[cible][group].concat(source.slice(this.layer[cible][group].length));
+          this.step[cible][group] = this.step[cible][group].concat(source.slice(this.step[cible][group].length));
         } else {
-          this.layer[cible][group] = source.slice(0, source.length - this.layer[cible][group].length).concat(this.layer[cible][group]);
+          this.step[cible][group] = source.slice(0, source.length - this.step[cible][group].length).concat(this.step[cible][group]);
         }
       }
     });
@@ -434,7 +434,7 @@ ${this.animation()}
     this.drawSvg();
   }
   tracePoint(group, point, x, y) {
-    let path = this.layer[this.curlayer][group];
+    let path = this.step[this.curstep][group];
     let newpoint = { x: Math.max(0, x), y: Math.max(0, y) };
     if (point == 1) {
       path.push(newpoint);
@@ -442,29 +442,29 @@ ${this.animation()}
       path.unshift(newpoint);
     }
     path = simplify(path);
-    this.layer[this.curlayer][group] = path;
-    this.svg.points.querySelector(`g[layer="${this.curlayer}"]`).outerHTML = this.drawPoint(this.curlayer);
-    this.svg.layers.querySelector(`path[layer="${this.curlayer}"]`).outerHTML = this.drawLayer(this.curlayer);
+    this.step[this.curstep][group] = path;
+    this.svg.points.querySelector(`g[step="${this.curstep}"]`).outerHTML = this.drawPoint(this.curstep);
+    this.svg.steps.querySelector(`path[step="${this.curstep}"]`).outerHTML = this.drawStep(this.curstep);
     this.save(false);
   }
   movePoint(group, index, x, y, mode) {
     let point = { x: Math.max(0, x), y: Math.max(0, y) },
-      oldpoint = this.layer[this.curlayer][group][index];
-    this.layer[this.curlayer][group][index] = point;
+      oldpoint = this.step[this.curstep][group][index];
+    this.step[this.curstep][group][index] = point;
     if (mode == "equalize") {
       this.equalizeMove(group, index);
     } else if (mode == "elastic") {
       this.elasticMove(group, index, oldpoint);
     } else if (mode == "sameway") {
       let delta = { x: point.x - oldpoint.x, y: point.y - oldpoint.y };
-      this.layer[this.curlayer][group].forEach((p, point) => {
+      this.step[this.curstep][group].forEach((p, point) => {
         if (index != point) {
-          this.layer[this.curlayer][group][point].x += delta.x;
-          this.layer[this.curlayer][group][point].y += delta.y;
+          this.step[this.curstep][group][point].x += delta.x;
+          this.step[this.curstep][group][point].y += delta.y;
         }
       });
     }
-    this.svg.layers.querySelector(`path[layer="${this.curlayer}"]`).outerHTML = this.drawLayer(this.curlayer);
+    this.svg.steps.querySelector(`path[step="${this.curstep}"]`).outerHTML = this.drawStep(this.curstep);
     this.svg.meshes.querySelector(`path[group="${group}"][point="${index}"]`).outerHTML = this.drawMesh(group, index);
     this.save(false);
     this.drawSvg();
@@ -472,15 +472,15 @@ ${this.animation()}
   }
   equalizeMove(group, index) {
     let hook = 0;
-    for (var i = this.curlayer; i > hook; i--) {
+    for (var i = this.curstep; i > hook; i--) {
       if (this.lock.includes(i)) {
         hook = i;
         break;
       }
     }
     this.equalizePoints(group, index, hook);
-    hook = this.layer.length - 1;
-    for (var i = this.curlayer; i < hook; i++) {
+    hook = this.step.length - 1;
+    for (var i = this.curstep; i < hook; i++) {
       if (this.lock.includes(i)) {
         hook = i;
         break;
@@ -489,18 +489,18 @@ ${this.animation()}
     this.equalizePoints(group, index, hook);
   }
   equalizePoints(group, index, hook) {
-    let moved = this.curlayer;
+    let moved = this.curstep;
     if (arguments.length == 2) {
       hook = 0;
-      moved = this.layer.length - 1;
+      moved = this.step.length - 1;
     }
     let nbr = Math.abs(moved - hook),
       way = Math.sign(moved - hook),
-      stepX = (this.layer[hook][group][index].x - this.layer[moved][group][index].x) / nbr,
-      stepY = (this.layer[hook][group][index].y - this.layer[moved][group][index].y) / nbr;
+      stepX = (this.step[hook][group][index].x - this.step[moved][group][index].x) / nbr,
+      stepY = (this.step[hook][group][index].y - this.step[moved][group][index].y) / nbr;
     for (var i = 1; i < nbr; i++) {
-      this.layer[hook + way * i][group][index].x = this.layer[hook][group][index].x - stepX * i;
-      this.layer[hook + way * i][group][index].y = this.layer[hook][group][index].y - stepY * i;
+      this.step[hook + way * i][group][index].x = this.step[hook][group][index].x - stepX * i;
+      this.step[hook + way * i][group][index].y = this.step[hook][group][index].y - stepY * i;
     }
     if (arguments.length == 2) {
       this.save(true);
@@ -509,15 +509,15 @@ ${this.animation()}
   }
   elasticMove(group, index, oldpoint) {
     let hook = 0;
-    for (var i = this.curlayer; i > hook; i--) {
+    for (var i = this.curstep; i > hook; i--) {
       if (this.lock.includes(i)) {
         hook = i;
         break;
       }
     }
     this.elasticPoints(group, index, hook, oldpoint);
-    // hook = this.layer.length - 1;
-    // for (var i = this.curlayer; i < hook; i++) {
+    // hook = this.step.length - 1;
+    // for (var i = this.curstep; i < hook; i++) {
     //   if (this.lock.includes(i)) {
     //     hook = i;
     //     break;
@@ -526,8 +526,8 @@ ${this.animation()}
     // this.elasticPoints(group, index, hook);
   }
   elasticPoints(group, index, hook, oldpoint) {
-    let hookpoint = this.layer[hook][group][index],
-      movepoint = this.layer[this.curlayer][group][index],
+    let hookpoint = this.step[hook][group][index],
+      movepoint = this.step[this.curstep][group][index],
       angle = this.angle(movepoint, hookpoint),
       distance = this.distance(movepoint, hookpoint),
       angleold = this.angle(oldpoint, hookpoint),

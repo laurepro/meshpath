@@ -3,12 +3,12 @@ window.addEventListener("load", (le) => {
   const interface = {
     tools: document.querySelector("body>nav"),
     area: document.querySelector("body>aside"),
-    layers: document.querySelector('body>aside select[name="layers"]'),
+    steps: document.querySelector('body>aside select[name="steps"]'),
     groups: document.querySelector('body>aside select[name="groups"]'),
-    activateLayer: (layer) => {
-      project.activateLayer(layer);
-      interface.layers.querySelector(`option[value="${layer}"]`).selected = true;
-      interface.area.querySelector('input[name="layername"]').value = project.getLayerName(layer);
+    activateStep: (step) => {
+      project.activateStep(step);
+      interface.steps.querySelector(`option[value="${step}"]`).selected = true;
+      interface.area.querySelector('input[name="stepname"]').value = project.getStepName(step);
     },
     activateGroup: (group) => {
       project.activateGroup(group);
@@ -40,16 +40,16 @@ window.addEventListener("load", (le) => {
       }
     }
   });
-  interface.area.querySelector("button.add.layer").addEventListener("click", (ce) => {
+  interface.area.querySelector("button.add.step").addEventListener("click", (ce) => {
     if (project.pointCount(0) > 0) {
-      interface.area.addlayer(project.addLayer());
+      interface.area.addstep(project.addStep());
     }
   });
-  interface.area.querySelector("button.remove.layer").addEventListener("click", (ce) => {
-    if (project.layerCount() > 1) {
-      Array.from(interface.layers.querySelectorAll("option")).pop().remove();
-      interface.activateLayer(project.removeLayer());
-      interface.layers.querySelectorAll("option").forEach((o, k) => (o.text = project.getLayerName(k)));
+  interface.area.querySelector("button.remove.step").addEventListener("click", (ce) => {
+    if (project.stepCount() > 1) {
+      Array.from(interface.steps.querySelectorAll("option")).pop().remove();
+      interface.activateStep(project.removeStep());
+      interface.steps.querySelectorAll("option").forEach((o, k) => (o.text = project.getStepName(k)));
     }
   });
   interface.area.querySelector("button.add.group").addEventListener("click", (ce) => {
@@ -64,9 +64,9 @@ window.addEventListener("load", (le) => {
       interface.groups.querySelectorAll("option").forEach((o, k) => (o.text = project.getGroupName(k)));
     }
   });
-  interface.area.querySelector('input[name="layername"]').addEventListener("change", (ce) => {
-    project.setLayerName(ce.target.value);
-    interface.layers.children[project.getCurLayer()].text = ce.target.value;
+  interface.area.querySelector('input[name="stepname"]').addEventListener("change", (ce) => {
+    project.setStepName(ce.target.value);
+    interface.steps.children[project.getCurStep()].text = ce.target.value;
   });
   interface.area.querySelector('input[name="groupname"]').addEventListener("change", (ce) => {
     project.setGroupName(ce.target.value);
@@ -81,18 +81,18 @@ window.addEventListener("load", (le) => {
     interface.groups.querySelectorAll("option").forEach((o, k) => (o.text = project.getGroupName(k)));
     interface.activateGroup(id);
   };
-  interface.area.addlayer = (id) => {
-    let newid = interface.layers.querySelectorAll("option").length;
+  interface.area.addstep = (id) => {
+    let newid = interface.steps.querySelectorAll("option").length;
     let option = document.createElement("option");
     option.value = newid;
     option.selected = true;
     option.classList.toggle("locked", project.islocked(newid));
-    interface.layers.appendChild(option);
-    interface.layers.querySelectorAll("option").forEach((o, k) => (o.text = project.getLayerName(k)));
-    interface.activateLayer(id);
+    interface.steps.appendChild(option);
+    interface.steps.querySelectorAll("option").forEach((o, k) => (o.text = project.getStepName(k)));
+    interface.activateStep(id);
   };
-  interface.layers.addEventListener("change", (ce) => {
-    interface.activateLayer(ce.target.value);
+  interface.steps.addEventListener("change", (ce) => {
+    interface.activateStep(ce.target.value);
   });
   interface.groups.addEventListener("change", (ce) => {
     interface.activateGroup(ce.target.value);
@@ -129,11 +129,11 @@ window.addEventListener("load", (le) => {
     interface.tools.reInit();
   });
   interface.tools.reInit = () => {
-    interface.layers.length = 0;
-    for (let i = 0; i < project.layerCount(); i++) {
-      interface.area.addlayer(i);
+    interface.steps.length = 0;
+    for (let i = 0; i < project.stepCount(); i++) {
+      interface.area.addstep(i);
     }
-    interface.activateLayer(project.getCurLayer());
+    interface.activateStep(project.getCurStep());
     interface.groups.length = 0;
     for (let i = 0; i < project.groupCount(); i++) {
       interface.area.addgroup(i);
@@ -147,10 +147,9 @@ window.addEventListener("load", (le) => {
     project.animate(true);
   });
   interface.tools.querySelector("label.path").addEventListener("click", (ce) => {
-    if (ce.target.parentElement.classList.contains("add")) {
+    if (ce.target.classList.includes("add")) {
       project.addPoint();
-    } else if (ce.target.parentElement.classList.contains("remove")) {
-      console.log('ici')
+    } else if (ce.target.classList.includes("remove")) {
       project.removePoint();
     }
   });
@@ -158,9 +157,9 @@ window.addEventListener("load", (le) => {
     project.reverseGroup();
   });
   interface.area.querySelector("button.lock").addEventListener("click", (ce) => {
-    let lock = project.lockLayer();
-    let layer = project.curlayer;
-    interface.layers.querySelector(`option[value="${layer}"]`).classList.toggle("locked", lock);
+    let lock = project.lockStep();
+    let step = project.curstep;
+    interface.steps.querySelector(`option[value="${step}"]`).classList.toggle("locked", lock);
   });
   interface.tools.querySelector('input[name="bkg"]').addEventListener("change", (ce) => {
     project.svg.image.style.opacity = ce.target.value;
@@ -177,8 +176,8 @@ window.addEventListener("load", (le) => {
     if (md.target.tagName == "circle") {
       let index = [...md.target.parentNode.children].indexOf(md.target),
         group = md.target.parentNode.getAttribute("group"),
-        layer = md.target.parentNode.parentNode.getAttribute("layer");
-      interface.activateLayer(layer);
+        step = md.target.parentNode.parentNode.getAttribute("step");
+      interface.activateStep(step);
       interface.activateGroup(group);
       interface.activatePath(index);
       if (mode == "trace") {
@@ -199,8 +198,8 @@ window.addEventListener("load", (le) => {
   project.svg.svg.addEventListener("mouseup", (mu) => {
     if (action.trace !== false && mu.target.tagName == "circle") {
       let group = mu.target.parentNode.getAttribute("group");
-      let layer = mu.target.parentNode.parentNode.getAttribute("layer");
-      project.applyPoint(layer, group, action.trace);
+      let step = mu.target.parentNode.parentNode.getAttribute("step");
+      project.applyPoint(step, group, action.trace);
     }
     if (action.move) {
       project.historize();

@@ -21,21 +21,21 @@
             <label class="animate" title="Show animation"><div>Animate</div></label>
             <input type="range" name="speed" min="1" max="30" step="1" value="5" title="animation speed">
             <input type="range" name="bkg" min="0" max="1" step="0.1" value="1" title="background opacity">
-            <label class="path add" title="Add path"><div>&#149;+</div></label>
-            <label class="path remove" title="Remove path"><div>&#149;-</div></label>
-            <label class="mode" title="Trace layer"><input type="radio" name="mode" value="trace" checked><div>&#9998;&#65039;</div></label>
-            <label class="mode" title="Point move"><input type="radio" name="mode" value="move"><div>&#8596;</div></label>
+            <label class="add path" title="Add path"><div>&#149;+</div></label>
+            <label class="remove path" title="Remove path"><div>&#149;-</div></label>
+            <label class="mode" title="Point move"><input type="radio" name="mode" value="move" checked><div>&#8596;</div></label>
             <label class="mode" title="Equalize move"><input type="radio" name="mode" value="equalize"><div>&#8700;</div></label>
             <label class="mode" title="Elastic move"><input type="radio" name="mode" value="elastic"><div>&#8621;</div></label>
-            <label class="mode" title="Layer move"><input type="radio" name="mode" value="sameway"><div>&#8660;</div></label>
+            <label class="mode" title="Step move"><input type="radio" name="mode" value="sameway"><div>&#8660;</div></label>
+            <label class="mode" title="Trace step"><input type="radio" name="mode" value="trace"><div>&#9998;&#65039;</div></label>
         </nav>
         <aside>
-            <input type="text" name="layername">
-            <select name="layers" size="10"></select>
+            <input type="text" name="stepname">
+            <select name="steps" size="10"></select>
             <nav>
-                <button class="add layer" title="Add a layer">+</button>
-                <button class="remove layer" title="Remove a layer">&#128465;</button>
-                <button class="lock layer" title="Un/Lock a layer">&#128274;</button>
+                <button class="add step" title="Add a step">+</button>
+                <button class="remove step" title="Remove a step">&#128465;</button>
+                <button class="lock step" title="Un/Lock a step">&#128274;</button>
             </nav>
             <input type="text" name="groupname">
             <select name="groups" size="10"></select>
@@ -54,7 +54,7 @@
                     </marker>
                 </defs>
                 <image id="background" preserveAspectRatio="none" />
-                <g id="layers"></g>
+                <g id="steps"></g>
                 <g id="points"></g>
                 <g id="meshes"></g>
                 <g id="animate"></g>
