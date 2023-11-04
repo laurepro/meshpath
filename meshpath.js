@@ -17,7 +17,7 @@ window.addEventListener("load", (le) => {
     },
     activatePath: (index) => {
       project.activatePath(index);
-      project.showMeshPoint(project.getCurGroup(), project.getCurPath());
+      project.showMeshPath(project.getCurGroup(), project.getCurPath());
     },
     getMode: () => {
       return interface.tools.querySelector('input[name="mode"]:checked').getAttribute("value");
@@ -139,6 +139,8 @@ window.addEventListener("load", (le) => {
       interface.area.addgroup(i);
     }
     interface.activateGroup(project.getCurGroup());
+    interface.tools.querySelector('label.close>input[type="checkbox"]').checked = project.close;
+    interface.activatePath(project.getCurPath());
   };
   interface.tools.querySelector("label.save").addEventListener("click", (ce) => {
     project.saveToFile();
@@ -146,12 +148,11 @@ window.addEventListener("load", (le) => {
   interface.tools.querySelector("label.animate").addEventListener("click", (ce) => {
     project.animate(true);
   });
-  interface.tools.querySelector("label.path").addEventListener("click", (ce) => {
-    if (ce.target.classList.includes("add")) {
-      project.addPoint();
-    } else if (ce.target.classList.includes("remove")) {
-      project.removePoint();
-    }
+  interface.tools.querySelector("label.path.add").addEventListener("click", (ce) => {
+    project.addPath();
+  });
+  interface.tools.querySelector("label.path.remove").addEventListener("click", (ce) => {
+    project.removePath();
   });
   interface.area.querySelector("button.reverse").addEventListener("click", (ce) => {
     project.reverseGroup();
@@ -199,7 +200,7 @@ window.addEventListener("load", (le) => {
     if (action.trace !== false && mu.target.tagName == "circle") {
       let group = mu.target.parentNode.getAttribute("group");
       let step = mu.target.parentNode.parentNode.getAttribute("step");
-      project.applyPoint(step, group, action.trace);
+      project.applyPath(step, group, action.trace);
     }
     if (action.move) {
       project.historize();
@@ -215,7 +216,7 @@ window.addEventListener("load", (le) => {
         y = me.offsetY / project.getScale();
       if (mode == "trace" && action.trace !== false) {
         var group = action.group || project.getCurGroup();
-        project.tracePoint(group, action.trace, x, y);
+        project.tracePath(group, action.trace, x, y);
       } else if (action.move !== false) {
         let group = action.move.parentNode;
         let g = parseInt(group.getAttribute("group"));
@@ -226,7 +227,7 @@ window.addEventListener("load", (le) => {
         if (y > project.heignt - 10) x = project.height;
         action.move.setAttribute("cx", x);
         action.move.setAttribute("cy", y);
-        project.movePoint(g, index, x, y, mode);
+        project.movePath(g, index, x, y, mode);
       }
     }
   });
@@ -252,5 +253,4 @@ window.addEventListener("load", (le) => {
   });
 
   interface.tools.reInit();
-  interface.tools.querySelector('label.close>input[type="checkbox"]').checked = project.close;
 });
