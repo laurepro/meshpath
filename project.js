@@ -461,8 +461,8 @@ ${this.animation()}
         }
       });
     }
-    this.svg.steps.querySelector(`path[step="${this.curpoint.step}"]`).outerHTML = this.drawStep(this.curpoint.step);
-    this.svg.meshes.querySelector(`path[group="${group}"][point="${index}"]`).outerHTML = this.drawMesh(group, index);
+    // this.svg.steps.querySelector(`path[step="${this.curpoint.step}"]`).outerHTML = this.drawStep(this.curpoint.step);
+    // this.svg.meshes.querySelector(`path[group="${group}"][point="${index}"]`).outerHTML = this.drawMesh(group, index);
     this.save(false);
     this.drawSvg();
     this.showMeshPath(group, index);
@@ -499,10 +499,6 @@ ${this.animation()}
       this.step[hook + way * i][group][index].x = this.step[hook][group][index].x - stepX * i;
       this.step[hook + way * i][group][index].y = this.step[hook][group][index].y - stepY * i;
     }
-    if (arguments.length == 2) {
-      this.save(true);
-      this.drawSvg();
-    }
   }
   elasticMove(group, index, oldpoint) {
     let hook = 0;
@@ -513,36 +509,46 @@ ${this.animation()}
       }
     }
     this.elasticPaths(group, index, hook, oldpoint);
-    // hook = this.step.length - 1;
-    // for (var i = this.curpoint.step; i < hook; i++) {
-    //   if (this.lock.includes(i)) {
-    //     hook = i;
-    //     break;
-    //   }
-    // }
-    // this.elasticPaths(group, index, hook);
+    hook = this.step.length - 1;
+    for (var i = this.curpoint.step; i < hook; i++) {
+      if (this.lock.includes(i)) {
+        hook = i;
+        break;
+      }
+    }
+    this.elasticPaths(group, index, hook, oldpoint);
   }
   elasticPaths(group, index, hook, oldpoint) {
     let hookpoint = this.step[hook][group][index],
       movepoint = this.step[this.curpoint.step][group][index],
-      angle = this.angle(movepoint, hookpoint),
-      distance = this.distance(movepoint, hookpoint),
-      angleold = this.angle(oldpoint, hookpoint),
-      distanceold = this.distance(oldpoint, hookpoint);
-    console.log(oldpoint, this.coordinates(hookpoint, angleold, distanceold));
+      movevector = this.vector(movepoint, hookpoint),
+      oldvector = this.vector(oldpoint, hookpoint),
+      moveratio = movevector.distance / oldvector.distance,
+      angledifference = movevector.angle - oldvector.angle,
+      length = Math.abs(hook - this.curpoint.step) - 1;
+    if (length > 0) {
+      Array(Math.abs(hook - this.curpoint.step) - 1)
+        .fill(hook)
+        .map((e, i) => e + i * Math.sign(this.curpoint.step - hook) + Math.sign(this.curpoint.step - hook))
+        .forEach((i) => {
+          let setpoint = this.step[i][group][index],
+            vector = this.vector(hookpoint, setpoint);
+          vector.distance = vector.distance * moveratio;
+          vector.angle += angledifference;
+          this.step[i][group][index] = this.coordinates(hookpoint, vector);
+        });
+    }
   }
-
-  distance(a, b) {
-    return Math.sqrt(Math.pow(b.y - a.y, 2) + Math.pow(b.x - a.x, 2));
-  }
-  angle(origine, destination) {
-    return Math.atan2(origine.x - destination.x, destination.y - origine.y); // radian
-    // return (Math.atan2(origine.x - destination.x, destination.y - origine.y) * 180) / Math.PI; // degree
-  }
-  coordinates(origine, angle, distance) {
+  vector(origine, destination) {
     return {
-      x: Math.floor(Math.sin(angle) * distance + origine.x),
-      y: Math.floor(0 - (Math.cos(angle) * distance - origine.y))
+      angle: Math.atan2(origine.y - destination.y, destination.x - origine.x), // radian
+      distance: Math.sqrt(Math.pow(destination.y - origine.y, 2) + Math.pow(destination.x - origine.x, 2)),
+    };
+  }
+  coordinates(origine, vector) {
+    return {
+      x: Math.cos(vector.angle) * vector.distance + origine.x,
+      y: 0 - (Math.sin(vector.angle) * vector.distance - origine.y),
     };
   }
 }
