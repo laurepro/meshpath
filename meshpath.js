@@ -159,7 +159,7 @@ window.addEventListener("load", (le) => {
   });
   interface.area.querySelector("button.lock").addEventListener("click", (ce) => {
     let lock = project.lockStep();
-    let step = project.curstep;
+    let step = project.getCurStep();
     interface.steps.querySelector(`option[value="${step}"]`).classList.toggle("locked", lock);
   });
   interface.tools.querySelector('input[name="bkg"]').addEventListener("change", (ce) => {
