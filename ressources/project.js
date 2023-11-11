@@ -1,7 +1,7 @@
 class Project {
   constructor() {
     this.history = new History();
-    let init = `{"step":[[[]]],"background":"","names":{"step":["step0"],"group":["group0"]},"lock":[],"width":${window.innerWidth},"height":${window.innerHeight},"close":false}`;
+    let init = `{"project":null,"step":[[[]]],"background":"","names":{"step":["step0"],"group":["group0"]},"lock":[],"width":${window.innerWidth},"height":${window.innerHeight},"close":false}`;
     this.load(localStorage.getItem("project") || init);
     this.save(true);
     this.svg = {
@@ -40,14 +40,17 @@ class Project {
     this.width = load.width;
     this.height = load.height;
     this.close = load.close;
+    this.projectName = load.projectName;
   }
-  saveToFile() {
+  saveToFile(projectName) {
+    projectName = projectName || "meshpath";
+    this.projectName = projectName;
     const blob = new Blob(
       [
         `<?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <!-- Created with MeshPath (http://meshpath.laurepro.fr/) -->
 <svg xmlns="http://www.w3.org/2000/svg" width="${this.width}" height="${this.height}" viewBox="0 0 ${this.width} ${this.height}">
-<meshpath steps="${btoa(JSON.stringify(this.step))}" names="${btoa(JSON.stringify(this.names))}" />
+<meshpath project="${this.projectName}" steps="${btoa(JSON.stringify(this.step))}" names="${btoa(JSON.stringify(this.names))}"/>
 ${this.svg.image.outerHTML}
 ${this.animation()}
 </svg>`,
@@ -57,7 +60,7 @@ ${this.animation()}
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = "meshpath.svg";
+    a.download = this.projectName + ".svg";
     const clickHandler = () => {
       setTimeout(() => {
         URL.revokeObjectURL(url);
@@ -88,6 +91,7 @@ ${this.animation()}
             names.step.forEach((ln) => that.names.step.push(ln));
             that.names.group.length = 0;
             names.group.forEach((gn) => that.names.group.push(gn));
+            that.projectName = meshpath.getAttribute("project");
           }
           var img = svg.querySelector("image#background");
           if (img) {
@@ -124,6 +128,7 @@ ${this.animation()}
       width: this.width,
       height: this.height,
       close: this.close,
+      projectName: this.projectName
     });
   }
   save(historize) {
@@ -154,6 +159,9 @@ ${this.animation()}
     this.close = closed;
     this.save(true);
     this.drawSvg();
+  }
+  getProjectName() {
+    return this.projectName;
   }
   getHeight() {
     return this.height;
@@ -352,7 +360,7 @@ ${this.animation()}
   showMeshPath(group, point) {
     this.svg.meshes.querySelectorAll("path.show").forEach((p) => p.classList.remove("show"));
     this.svg.points.querySelectorAll("circle.show").forEach((p) => p.classList.remove("show"));
-    this.svg.meshes.querySelector(`path[group="${group}"][point="${point}"]`).classList.add("show");
+    this.svg.meshes.querySelectorAll(`path[group="${group}"][point="${point}"]`).forEach((p) => p.classList.add("show"));
     this.svg.points.querySelectorAll(`g[group="${group}"] circle:nth-of-type(${point + 1})`).forEach((p) => p.classList.add("show"));
   }
   setDuration(dur) {
@@ -409,7 +417,6 @@ ${this.animation()}
   removePath() {
     let group = this.curpoint.group;
     let index = this.curpoint.path;
-    console.log(group, index);
     this.step.forEach((l, step) => {
       this.step[step][group] = this.step[step][group].slice(0, index).concat(this.step[step][group].slice(index + 1));
     });
@@ -526,7 +533,9 @@ ${this.animation()}
       moveratio = movevector.distance / oldvector.distance,
       angledifference = movevector.angle - oldvector.angle,
       length = Math.abs(hook - this.curpoint.step) - 1;
-    if (length > 0) {
+    if (oldvector.distance == 0) {
+      this.equalizePaths(group, index, hook);
+    } else if (length > 0) {
       Array(Math.abs(hook - this.curpoint.step) - 1)
         .fill(hook)
         .map((e, i) => e + i * Math.sign(this.curpoint.step - hook) + Math.sign(this.curpoint.step - hook))

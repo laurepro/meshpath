@@ -1,4 +1,4 @@
-window.addEventListener("load", (le) => {
+window.addEventListener("load", () => {
   const project = new Project();
   const interface = {
     tools: document.querySelector("body>nav"),
@@ -112,11 +112,11 @@ window.addEventListener("load", (le) => {
       location.reload();
     }
   });
-  document.addEventListener("keydown", (kp) => {
-    if (kp.key == "z" && kp.ctrlKey) {
+  document.addEventListener("keydown", (ke) => {
+    if (ke.key == "z" && ke.ctrlKey) {
       interface.tools.querySelector("label.undo").click();
     }
-    if (kp.key == "y" && kp.ctrlKey) {
+    if (ke.key == "y" && ke.ctrlKey) {
       interface.tools.querySelector("label.redo").click();
     }
   });
@@ -139,20 +139,25 @@ window.addEventListener("load", (le) => {
       interface.area.addgroup(i);
     }
     interface.activateGroup(project.getCurGroup());
-    interface.tools.querySelector('label.close>input[type="checkbox"]').checked = project.close;
     interface.activatePath(project.getCurPath());
+    interface.tools.querySelector('label.close>input[type="checkbox"]').checked = project.close;
   };
   interface.tools.querySelector("label.save").addEventListener("click", (ce) => {
-    project.saveToFile();
+    let name = window.prompt("project name ?", project.getProjectName());
+    if (name !== null) {
+      project.saveToFile(name);
+    }
   });
   interface.tools.querySelector("label.animate").addEventListener("click", (ce) => {
     project.animate(true);
   });
   interface.tools.querySelector("label.path.add").addEventListener("click", (ce) => {
     project.addPath();
+    interface.activatePath(project.getCurPath() > 0 ? project.getCurPath() + 1 : 0);
   });
   interface.tools.querySelector("label.path.remove").addEventListener("click", (ce) => {
     project.removePath();
+    interface.activatePath(project.getCurPath() > 0 ? project.getCurPath() - 1 : 0);
   });
   interface.area.querySelector("button.reverse").addEventListener("click", (ce) => {
     project.reverseGroup();
@@ -172,12 +177,12 @@ window.addEventListener("load", (le) => {
     group: false,
     move: false,
   };
-  project.svg.svg.addEventListener("mousedown", (md) => {
+  project.svg.svg.addEventListener("mousedown", (me) => {
     let mode = interface.getMode();
-    if (md.target.tagName == "circle") {
-      let index = [...md.target.parentNode.children].indexOf(md.target),
-        group = md.target.parentNode.getAttribute("group"),
-        step = md.target.parentNode.parentNode.getAttribute("step");
+    if (me.target.tagName == "circle") {
+      let index = [...me.target.parentNode.children].indexOf(me.target),
+        group = me.target.parentNode.getAttribute("group"),
+        step = me.target.parentNode.parentNode.getAttribute("step");
       interface.activateStep(step);
       interface.activateGroup(group);
       interface.activatePath(index);
@@ -188,7 +193,7 @@ window.addEventListener("load", (le) => {
         }
       } else {
         if (project.isMovable()) {
-          action.move = md.target;
+          action.move = me.target;
         }
       }
     } else if (project.curGroupEmpty()) {
@@ -196,10 +201,10 @@ window.addEventListener("load", (le) => {
       action.group = false;
     }
   });
-  project.svg.svg.addEventListener("mouseup", (mu) => {
-    if (action.trace !== false && mu.target.tagName == "circle") {
-      let group = mu.target.parentNode.getAttribute("group");
-      let step = mu.target.parentNode.parentNode.getAttribute("step");
+  project.svg.svg.addEventListener("mouseup", (me) => {
+    if (action.trace !== false && me.target.tagName == "circle") {
+      let group = me.target.parentNode.getAttribute("group");
+      let step = me.target.parentNode.parentNode.getAttribute("step");
       project.applyPath(step, group, action.trace);
     }
     if (action.move) {

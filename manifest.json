@@ -1,0 +1,16 @@
+{
+  "lang": "en-en",
+  "name": "Mesh and Path SVG Animation Editor",
+  "short_name": "MeshPath",
+  "description": "SVG AnimationEditor, by showing pathes of each point",
+  "start_url": "/",
+  "id": "/",
+  "background_color": "#2f3d58",
+  "theme_color": "#2f3d58",
+  "orientation": "portrait",
+  "display": "standalone",
+  "icons": [
+    { "src": "/android-chrome-192x192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "/android-chrome-512x512.png", "sizes": "512x512", "type": "image/png" }
+  ]
+}

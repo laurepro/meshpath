@@ -1,64 +1,89 @@
 <html>
-    <head>
-        <meta charset="UTF-8">
-        <link rel="icon" type="image/svg+xml" href="icon.svg" />
-        <link rel="stylesheet" type="text/css" href="meshpath.css">
-        <script type="text/javascript"  src="history.js"></script>
-        <script type="text/javascript"  src="project.js"></script>
-        <script type="text/javascript"  src="meshpath.js"></script>
-        <script type="text/javascript"  src="simplify.js"></script>
-        <script type="text/javascript"  src="bezier.js"></script>
-    </head>
-    <body>
-        <nav>
-            <label class="clear" title="Clear project"><div>New</div></label>
-            <label class="open" title="Upload project or background"><input type="file" /><div>Open</div></label>
-            <label class="save" title="Download project"><div>Save</div></label>
-            <label class="undo" title="undo"><div>&cularr;</div></label>
-            <label class="redo" title="redo"><div>&curarr;</div></label>
-            <label class="close" title="Close all pathes"><input type="checkbox" name="close"><div>Close</div></label>
-            <label class="mesh" title="Show/hide mesh"><input type="checkbox" name="mesh"><div>Mesh</div></label>
-            <label class="animate" title="Show animation"><div>Animate</div></label>
-            <input type="range" name="speed" min="1" max="30" step="1" value="5" title="animation speed">
-            <input type="range" name="bkg" min="0" max="1" step="0.1" value="1" title="background opacity">
-            <label class="add path" title="Add path"><div>&#149;+</div></label>
-            <label class="remove path" title="Remove path"><div>&#149;-</div></label>
-            <label class="mode" title="Point move"><input type="radio" name="mode" value="move" checked><div>&#8596;</div></label>
-            <label class="mode" title="Equalize move"><input type="radio" name="mode" value="equalize"><div>&#8700;</div></label>
-            <label class="mode" title="Elastic move"><input type="radio" name="mode" value="elastic"><div>&#8621;</div></label>
-            <label class="mode" title="Step move"><input type="radio" name="mode" value="sameway"><div>&#8660;</div></label>
-            <label class="mode" title="Trace step"><input type="radio" name="mode" value="trace"><div>&#9998;&#65039;</div></label>
-        </nav>
-        <aside>
-            <input type="text" name="stepname">
-            <select name="steps" size="10"></select>
-            <nav>
-                <button class="add step" title="Add a step">+</button>
-                <button class="remove step" title="Remove a step">&#128465;</button>
-                <button class="lock step" title="Un/Lock a step">&#128274;</button>
-            </nav>
-            <input type="text" name="groupname">
-            <select name="groups" size="10"></select>
-            <nav>
-                <button class="add group" title="Add a group">+</button>
-                <button class="remove group" title="Remove a group">&#128465;</button>
-                <button class="reverse" title="Reverse path group">&#9775;</button>
-            </nav>
-        </aside>
-        <section id="debug"></section>
-        <section id="svg">
-            <svg xmlns="http://www.w3.org/2000/svg" version="1.1">
-                <defs>
-                    <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="-5" refY="2.5" orient="auto">
-                        <polygon points="0 0, 7 2.5, 0 5" />
-                    </marker>
-                </defs>
-                <image id="background" preserveAspectRatio="none" />
-                <g id="steps"></g>
-                <g id="points"></g>
-                <g id="meshes"></g>
-                <g id="animate"></g>
-            </svg>
-        </section>
-    </body>
+  <head>
+    <title>MeshPath</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0" />
+    <link rel="shortcut icon" href="favicon.ico" />
+    <link rel="manifest" href="/manifest.json" />
+    <link rel="stylesheet" type="text/css" href="ressources/meshpath.css" />
+    <script type="text/javascript" src="ressources/history.js"></script>
+    <script type="text/javascript" src="ressources/project.js"></script>
+    <script type="text/javascript" src="ressources/meshpath.js"></script>
+    <script type="text/javascript" src="ressources/simplify.js"></script>
+    <script type="text/javascript" src="ressources/bezier.js"></script>
+<script>
+    const registerServiceWorker = async () => {
+	if ("serviceWorker" in navigator) {
+		try {
+			const registration = await navigator.serviceWorker.register("/sw.js", {
+				scope: "/",
+			});
+			if (registration.installing) {
+				console.log("Service worker installation");
+			} else if (registration.waiting) {
+				console.log("Service worker installed");
+			} else if (registration.active) {
+				console.log("Service worker active");
+			}
+		} catch (error) {
+			console.error(`L'enregistrement a échoué : ${error}`);
+		}
+	}
+};
+</script>
+  </head>
+  <body>
+    <nav>
+      <label class="clear" title="Clear project"><div>New</div></label>
+      <label class="open" title="Upload project or background"><input type="file" /><div>Open</div></label>
+      <label class="save" title="Download project"><div>Save</div></label>
+      <label class="undo" title="undo"><div>&cularr;</div></label>
+      <label class="redo" title="redo"><div>&curarr;</div></label>
+      <label class="close" title="Close all pathes"><input type="checkbox" name="close" /><div>Close</div></label>
+      <label class="mesh" title="Show/hide mesh"><input type="checkbox" name="mesh" /><div>Mesh</div></label>
+      <label class="animate" title="Show animation"><div>Animate</div></label>
+      <input type="range" name="speed" min="1" max="30" step="1" value="5" title="animation speed" />
+      <input type="range" name="bkg" min="0" max="1" step="0.1" value="1" title="background opacity" />
+      <label class="add path" title="Add path"><div>&#149;+</div></label>
+      <label class="remove path" title="Remove path"><div>&#149;-</div></label>
+      <label class="mode" title="Point move"><input type="radio" name="mode" value="move" checked /><div>&#8596;</div></label>
+      <label class="mode" title="Equalize move"><input type="radio" name="mode" value="equalize" /><div>&#8700;</div></label>
+      <label class="mode" title="Elastic move"><input type="radio" name="mode" value="elastic" /><div>&#8621;</div></label>
+      <label class="mode" title="Step move"><input type="radio" name="mode" value="sameway" /><div>&#8660;</div></label>
+      <label class="mode" title="Trace step"><input type="radio" name="mode" value="trace" /><div>&#9998;&#65039;</div></label>
+    </nav>
+    <aside>
+      <input type="text" name="stepname" />
+      <select name="steps" size="10"></select>
+      <nav>
+        <button class="add step" title="Add a step">+</button>
+        <button class="remove step" title="Remove a step">&#128465;</button>
+        <button class="lock step" title="Un/Lock a step">&#128274;</button>
+      </nav>
+      <input type="text" name="groupname" />
+      <select name="groups" size="10"></select>
+      <nav>
+        <button class="add group" title="Add a group">+</button>
+        <button class="remove group" title="Remove a group">&#128465;</button>
+        <button class="reverse" title="Reverse path group">&#9775;</button>
+      </nav>
+    </aside>
+    <section id="svg">
+      <svg xmlns="http://www.w3.org/2000/svg" version="1.1">
+        <defs>
+          <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="-5" refY="2.5" orient="auto">
+            <polygon points="0 0, 7 2.5, 0 5" />
+          </marker>
+        </defs>
+        <image id="background" preserveAspectRatio="none" />
+        <g id="steps"></g>
+        <g id="points"></g>
+        <g id="meshes"></g>
+        <g id="animate"></g>
+      </svg>
+    </section>
+    <script>
+      registerServiceWorker();
+    </script>
+  </body>
 </html>

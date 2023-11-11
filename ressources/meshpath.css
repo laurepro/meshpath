@@ -69,11 +69,6 @@ body>section#svg>svg>g#points>g.locked circle {
     stroke:none !important;
 }
 
-body>section#debug {
-    position: absolute;
-    top: 100px;
-}
-
 .hidden {
     display: none;
 }
