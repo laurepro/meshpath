@@ -249,12 +249,47 @@ window.addEventListener("load", () => {
       } else {
         scale += we.deltaY / 100;
       }
-      scale = Math.max(scale, window.innerHeight / project.getHeight());
+      scale = Math.min(5, Math.max(scale, window.innerHeight / project.getHeight()));
 
       project.setScale(scale);
       project.svg.container.scrollLeft = (pointx * project.svg.scale) / 100 - we.x;
       project.svg.container.scrollTop = (pointy * project.svg.scale) / 100 - we.y + project.svg.container.offsetTop;
     }
+  });
+
+  const touch = {
+    scale: false,
+    init: false,
+    dist: (ge) => {
+      return Math.hypot(ge.touches[0].pageX - ge.touches[1].pageX, ge.touches[0].pageY - ge.touches[1].pageY) * touch.scale;
+    },
+    coord: (ge) => {
+      return {
+        x: (ge.touches[0].pageX + ge.touches[1].pageX) / 2,
+        y: (ge.touches[0].pageY - ge.touches[1].pageY) / 2,
+      };
+    },
+  };
+
+  project.svg.container.addEventListener("touchstart", (ge) => {
+    if (ge.touches.length === 2) {
+      touch.scale = project.getScale();
+      touch.init = touch.dist(ge);
+    }
+  });
+
+  project.svg.container.addEventListener("touchmove", (ge) => {
+    if (touch.scale !== false) {
+      var scale = touch.dist(ge) / touch.init;
+      project.setScale(Math.min(5, Math.max(touch.scale * scale, window.innerHeight / project.getHeight())));
+      // let point = touch.coord(ge);
+      // project.svg.container.scrollLeft = (point.x * project.svg.scale) / 100 - ge.x;
+      // project.svg.container.scrollTop = (point.y * project.svg.scale) / 100 - ge.y + project.svg.container.offsetTop;
+    }
+  });
+
+  project.svg.container.addEventListener("touchend", (ge) => {
+    touch.scale = false;
   });
 
   interface.tools.reInit();
