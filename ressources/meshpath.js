@@ -22,6 +22,17 @@ window.addEventListener("load", () => {
     getMode: () => {
       return interface.tools.querySelector('input[name="mode"]:checked').getAttribute("value");
     },
+    debug() {
+      let html = "";
+      for (var i = 0; i < arguments.length; i++) {
+        let text = arguments[i];
+        if (["object", "array"].includes(typeof text)) {
+          text = JSON.stringify(text, null, 2);
+        }
+        html += `<p>${text}</p>`;
+      }
+      document.querySelector("#debug").innerHTML = html;
+    },
   };
   document.addEventListener("keyup", (ke) => {
     if (ke.code == "Escape") {
@@ -236,7 +247,6 @@ window.addEventListener("load", () => {
       }
     }
   });
-
   project.svg.container.addEventListener("wheel", (we) => {
     if (we.ctrlKey) {
       we.stopPropagation();
@@ -250,46 +260,46 @@ window.addEventListener("load", () => {
         scale += we.deltaY / 100;
       }
       scale = Math.min(5, Math.max(scale, window.innerHeight / project.getHeight()));
-
       project.setScale(scale);
       project.svg.container.scrollLeft = (pointx * project.svg.scale) / 100 - we.x;
       project.svg.container.scrollTop = (pointy * project.svg.scale) / 100 - we.y + project.svg.container.offsetTop;
     }
   });
-
-  const touch = {
-    scale: false,
-    init: false,
-    dist: (ge) => {
-      return Math.hypot(ge.touches[0].pageX - ge.touches[1].pageX, ge.touches[0].pageY - ge.touches[1].pageY) * touch.scale;
-    },
-    coord: (ge) => {
-      return {
-        x: (ge.touches[0].pageX + ge.touches[1].pageX) / 2,
-        y: (ge.touches[0].pageY - ge.touches[1].pageY) / 2,
-      };
-    },
+  const touch = {};
+  const distance = (ge) => {
+    return Math.hypot(ge.touches[0].pageX - ge.touches[1].pageX, ge.touches[0].pageY - ge.touches[1].pageY) * touch.scale;
   };
-
+  project.svg.container.addEventListener("pointerdown", (evt) => {
+    touch.stylus = evt.width < 1 && evt.height < 1;
+  });
   project.svg.container.addEventListener("touchstart", (ge) => {
-    if (ge.touches.length === 2) {
+      // interface.debug( ge.target.getBoundingClientRect());
+    if (ge.touches.length === 2 && ge.target.id == "background") {
       touch.scale = project.getScale();
-      touch.init = touch.dist(ge);
+      touch.distance = distance(ge);
+      touch.rect = ge.target.getBoundingClientRect();
+      touch.coord = {
+        x: ((ge.targetTouches[0].pageX + ge.targetTouches[1].pageX) / 2 - touch.rect.left) / project.getScale(),
+        y: (ge.targetTouches[0].pageY + ge.targetTouches[1].pageY) / 2 / project.getScale(),
+      };
     }
   });
-
   project.svg.container.addEventListener("touchmove", (ge) => {
-    if (touch.scale !== false) {
-      var scale = touch.dist(ge) / touch.init;
-      project.setScale(Math.min(5, Math.max(touch.scale * scale, window.innerHeight / project.getHeight())));
-      // let point = touch.coord(ge);
-      // project.svg.container.scrollLeft = (point.x * project.svg.scale) / 100 - ge.x;
-      // project.svg.container.scrollTop = (point.y * project.svg.scale) / 100 - ge.y + project.svg.container.offsetTop;
+    if (touch.stylus || ge.touches.length > 1) {
+      ge.stopPropagation();
+      ge.preventDefault();
+    }
+    if (touch.scale !== undefined) {
+      project.setScale(Math.min(5, Math.max(touch.scale * distance(ge) / touch.distance, window.innerHeight / project.getHeight())));
+      let rect = ge.target.getBoundingClientRect();
+      project.svg.container.scrollLeft = (touch.coord.x * project.getScale() - touch.coord.x * touch.scale) - (touch.rect.left);
+      document.scrollingElement.scrollTop = (touch.coord.y * project.getScale() - touch.coord.y * touch.scale) - touch.rect.top;
+      interface.debug(touch.rect.left, rect.left)
     }
   });
 
   project.svg.container.addEventListener("touchend", (ge) => {
-    touch.scale = false;
+    touch.scale = {};
   });
 
   interface.tools.reInit();

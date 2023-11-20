@@ -195,3 +195,15 @@ select[name="steps"] option::before {
 select[name="steps"] option.locked::before {
     content: "🔒"
 }
+
+div#debug {
+    position:fixed;
+    bottom:10px;
+    right:10px;
+    z-index: 999999;
+    font-weight: bold;
+    background-color: #ffffff80;
+    padding:0 10px;
+    text-align: right;
+    pointer-events: none;
+}
