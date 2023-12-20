@@ -265,16 +265,54 @@ window.addEventListener("load", () => {
       project.svg.container.scrollTop = (pointy * project.svg.scale) / 100 - we.y + project.svg.container.offsetTop;
     }
   });
-  const touch = {};
+  const touch = {
+    scale: false,
+    stylus: false,
+    rect: false,
+    distance: false,
+    move: false,
+    trace: false,
+    group: false,
+    coord: false
+  };
   const distance = (ge) => {
     return Math.hypot(ge.touches[0].pageX - ge.touches[1].pageX, ge.touches[0].pageY - ge.touches[1].pageY) * touch.scale;
   };
   project.svg.container.addEventListener("pointerdown", (evt) => {
     touch.stylus = evt.width < 1 && evt.height < 1;
+    interface.debug(evt.pointerType);
   });
+  project.svg.container.addEventListener("pointerup", (evt) => {
+    interface.debug('up');
+  });
+  // project.svg.container.addEventListener("pointermove", (evt) => {
+  //   interface.debug('move');
+  // });
   project.svg.container.addEventListener("touchstart", (ge) => {
-      // interface.debug( ge.target.getBoundingClientRect());
-    if (ge.touches.length === 2 && ge.target.id == "background") {
+    if (touch.stylus) {
+      let mode = interface.getMode();
+      if (ge.target.tagName == "circle") {
+        let index = [...ge.target.parentNode.children].indexOf(ge.target),
+          group = ge.target.parentNode.getAttribute("group"),
+          step = ge.target.parentNode.parentNode.getAttribute("step");
+        interface.activateStep(step);
+        interface.activateGroup(group);
+        interface.activatePath(index);
+        if (mode == "trace") {
+          if (index == 0 || index == project.pointCount(group) - 1) {
+            touch.trace = index == 0 ? -1 : 1;
+            touch.group = group;
+          }
+        } else {
+          if (project.isMovable()) {
+            touch.move = ge.target;
+          }
+        }
+      } else if (project.curGroupEmpty()) {
+        touch.trace = true;
+        touch.group = false;
+      }
+    } else if (ge.touches.length === 2 && ge.target.id == "background") {
       touch.scale = project.getScale();
       touch.distance = distance(ge);
       touch.rect = ge.target.getBoundingClientRect();
@@ -289,17 +327,45 @@ window.addEventListener("load", () => {
       ge.stopPropagation();
       ge.preventDefault();
     }
-    if (touch.scale !== undefined) {
-      project.setScale(Math.min(5, Math.max(touch.scale * distance(ge) / touch.distance, window.innerHeight / project.getHeight())));
+    if (touch.stylus) {
+      let mode = interface.getMode();
+      let x = ge.touches[0].clientX / project.getScale(),
+        y = ge.touches[0].clientY / project.getScale();
+      if (mode == "trace" && touch.trace !== false) {
+        var group = touch.group || project.getCurGroup();
+        project.tracePath(group, touch.trace, x, y);
+      } else if (touch.move !== false) {
+        let group = touch.move.parentNode;
+        let g = parseInt(group.getAttribute("group"));
+        let index = [...group.children].indexOf(touch.move);
+        if (x < 10) x = 0;
+        if (y < 10) y = 0;
+        if (x > project.width - 10) x = project.width;
+        if (y > project.heignt - 10) x = project.height;
+        touch.move.setAttribute("cx", x);
+        touch.move.setAttribute("cy", y);
+        project.movePath(g, index, x, y, mode);
+      }
+    } else if (touch.scale !== false) {
+      project.setScale(Math.min(5, Math.max((touch.scale * distance(ge)) / touch.distance, window.innerHeight / project.getHeight())));
       let rect = ge.target.getBoundingClientRect();
-      project.svg.container.scrollLeft = (touch.coord.x * project.getScale() - touch.coord.x * touch.scale) - (touch.rect.left);
-      document.scrollingElement.scrollTop = (touch.coord.y * project.getScale() - touch.coord.y * touch.scale) - touch.rect.top;
-      interface.debug(touch.rect.left, rect.left)
+      project.svg.container.scrollLeft = touch.coord.x * project.getScale() - touch.coord.x * touch.scale - touch.rect.left;
+      document.scrollingElement.scrollTop = touch.coord.y * project.getScale() - touch.coord.y * touch.scale - touch.rect.top;
     }
   });
 
   project.svg.container.addEventListener("touchend", (ge) => {
-    touch.scale = {};
+    if (touch.trace !== false && ge.target.tagName == "circle") {
+      let group = ge.target.parentNode.getAttribute("group");
+      let step = ge.target.parentNode.parentNode.getAttribute("step");
+      project.applyPath(step, group, touch.trace);
+    }
+    if (touch.move) {
+      project.historize();
+    }
+    for(i in touch) {
+      touch[i]= false
+    }
   });
 
   interface.tools.reInit();

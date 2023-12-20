@@ -9,6 +9,10 @@ html {
     font-size: 1rem !important;
 }
 
+body {
+    overscroll-behavior: contain;
+}
+
 body>section#svg {
     display: block;
     width: 100%;
@@ -65,8 +69,8 @@ body>section#svg>svg>g#points>g.active circle:hover {
 }
 
 body>section#svg>svg>g#points>g.locked circle {
-    fill:black !important;
-    stroke:none !important;
+    fill: black !important;
+    stroke: none !important;
 }
 
 .hidden {
@@ -105,7 +109,7 @@ body>aside>nav {
 input[type="text"],
 select {
     font-size: 1rem;
-    background-color:aliceblue;
+    background-color: aliceblue;
     border: none;
     outline: none;
 }
@@ -130,7 +134,7 @@ label>div {
 
 label.mode {
     font-weight: bold;
-    font-size:1.5rem;
+    font-size: 1.5rem;
 }
 
 body>nav>div>label>div {
@@ -184,6 +188,7 @@ body>nav button:hover,
 body>nav label>div:hover {
     background-color: darksalmon;
 }
+
 body>aside button {
     font-weight: bold;
 }
@@ -197,13 +202,13 @@ select[name="steps"] option.locked::before {
 }
 
 div#debug {
-    position:fixed;
-    bottom:10px;
-    right:10px;
+    position: fixed;
+    bottom: 10px;
+    right: 10px;
     z-index: 999999;
     font-weight: bold;
     background-color: #ffffff80;
-    padding:0 10px;
+    padding: 0 10px;
     text-align: right;
     pointer-events: none;
 }
