@@ -40,10 +40,10 @@ window.addEventListener("load", () => {
       interface.area.classList.toggle("hidden");
     }
   });
-  document.querySelector('body>nav>label').addEventListener('click', ()=>{
+  document.querySelector("body>nav>label").addEventListener("click", () => {
     interface.tools.classList.toggle("hidden");
     interface.area.classList.toggle("hidden");
-})
+  });
   interface.tools.querySelector('input[type="range"]').addEventListener("change", (ce) => {
     project.setDuration(ce.target.value);
   });
@@ -236,6 +236,11 @@ window.addEventListener("load", () => {
     }
   });
   project.svg.svg.addEventListener("pointermove", (me) => {
+    if (me.pointerType == "pen") {
+      document.querySelector("body").classList.add("pen");
+    } else {
+      document.querySelector("body").classList.remove("pen");
+    }
     if (["pen", "mouse"].includes(me.pointerType)) {
       me.preventDefault();
       if (me.buttons == 1) {
