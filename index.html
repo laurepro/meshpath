@@ -35,23 +35,24 @@
   </head>
   <body>
     <nav>
-      <label class="clear" title="Clear project"><div>New</div></label>
-      <label class="open" title="Upload project or background"><input type="file" /><div>Open</div></label>
-      <label class="save" title="Download project"><div>Save</div></label>
-      <label class="undo" title="undo"><div>&cularr;</div></label>
-      <label class="redo" title="redo"><div>&curarr;</div></label>
-      <label class="close" title="Close all pathes"><input type="checkbox" name="close" /><div>Close</div></label>
-      <label class="mesh" title="Show/hide mesh"><input type="checkbox" name="mesh" /><div>Mesh</div></label>
-      <label class="animate" title="Show animation"><div>Animate</div></label>
+      <label class="tool" title="Show/Hide toolbar"><div>&#9776;</div></label>
+      <label class="clear" title="Clear project"><div>&#127381;</div></label>
+      <label class="open" title="Upload project or background"><input type="file" /><div>&#128194;</div></label>
+      <label class="save" title="Download project"><div>&#128190;</div></label>
+      <label class="undo" title="undo"><div class="big">&cularr;</div></label>
+      <label class="redo" title="redo"><div class="big">&curarr;</div></label>
+      <label class="close" title="Close all pathes"><input type="checkbox" name="close" /><div class="big">&#9750;</div></label>
+      <label class="mesh" title="Show/hide mesh"><input type="checkbox" name="mesh" /><div class="big">&sharp;</div></label>
+      <label class="animate" title="Show animation"><div class="big">&#8605;</div></label>
       <input type="range" name="speed" min="1" max="30" step="1" value="5" title="animation speed" />
       <input type="range" name="bkg" min="0" max="1" step="0.1" value="1" title="background opacity" />
-      <label class="add path" title="Add path"><div>&#149;+</div></label>
-      <label class="remove path" title="Remove path"><div>&#149;-</div></label>
-      <label class="mode" title="Point move"><input type="radio" name="mode" value="move" checked /><div>&#8596;</div></label>
-      <label class="mode" title="Equalize move"><input type="radio" name="mode" value="equalize" /><div>&#8700;</div></label>
-      <label class="mode" title="Elastic move"><input type="radio" name="mode" value="elastic" /><div>&#8621;</div></label>
-      <label class="mode" title="Step move"><input type="radio" name="mode" value="sameway" /><div>&#8660;</div></label>
-      <label class="mode" title="Trace step"><input type="radio" name="mode" value="trace" /><div>&#9998;&#65039;</div></label>
+      <label class="add path" title="Add path"><div class="big">&#65122;</div></label>
+      <label class="remove path" title="Remove path"><div class="big">&#65123;</div></label>
+      <label class="mode" title="Point move"><input type="radio" name="mode" value="move" checked /><div class="big">&#8596;</div></label>
+      <label class="mode" title="Equalize move"><input type="radio" name="mode" value="equalize" /><div class="big">&#8700;</div></label>
+      <label class="mode" title="Elastic move"><input type="radio" name="mode" value="elastic" /><div class="big">&#8621;</div></label>
+      <label class="mode" title="Step move"><input type="radio" name="mode" value="sameway" /><div class="big">&#8660;</div></label>
+      <label class="mode" title="Trace step"><input type="radio" name="mode" value="trace" /><div class="big">&#9999;</div></label>
     </nav>
     <aside>
       <input type="text" name="stepname" />

@@ -468,8 +468,6 @@ ${this.animation()}
         }
       });
     }
-    // this.svg.steps.querySelector(`path[step="${this.curpoint.step}"]`).outerHTML = this.drawStep(this.curpoint.step);
-    // this.svg.meshes.querySelector(`path[group="${group}"][point="${index}"]`).outerHTML = this.drawMesh(group, index);
     this.save(false);
     this.drawSvg();
     this.showMeshPath(group, index);
